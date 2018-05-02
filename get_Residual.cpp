@@ -144,7 +144,6 @@ float get_Residual(int    & n_SERCA_Molecules,
     
     
     residual = 0;
-    clock_t t1;
     t1=clock();
     float ss_bound_Ca[n_pCa];
     float norm_ss_bound_Ca[n_pCa];
