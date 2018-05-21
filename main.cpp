@@ -19,7 +19,7 @@
 //           ||                                                                \\      //
 //           ||                                                        (+ ADP)  \\    //
 //           \/                                                                  \\  //
-//    (Pi +) E <==> Ai <==> *E-P + Ca <==> *E-P.Ca  <==> *E'-P.Ca + Ca <==>  *E'-P.Ca2
+//    (Pi +) E <==> *E-Pi <==> *E-P + Ca <==> *E-P.Ca  <==> *E'-P.Ca + Ca <==>  *E'-P.Ca2
 //          [S0]    [S12]      [S11]           [S10]          [S9]                 [S7]
 //
 // State Reaction               State Product          Rate(f)   Rate(r)
@@ -47,10 +47,11 @@
 #include <string>
 #include <sstream>
 #include <time.h>
+#include <mpi.h>
 
 using namespace std;
 
-const int n_particles_PSO = 5;
+const int n_particles_PSO = 20;
 
 int   n_s;                 // Number of states
 int   n_pCa ;              // Number of simulated pCa or Ca values
@@ -59,6 +60,7 @@ int   max_tsteps;          // Max number of time stepping
 float dt;                 // fixed time step
 float residual_cost_func [n_particles_PSO]; // to track the residual between numerics and experiments
 float Res_pbest[n_particles_PSO];
+int   id, p, ierr, argc; // for parallel    
 //---------------------------------------------
 // model reference parameters that we need to optimize
 //--------------------------------------------
@@ -68,6 +70,10 @@ float k_S0_S1    ,  k_S0_S1_lower    ,  k_S0_S1_upper   ; // First Ca Associatio
 float k_S2_S3    ,  k_S2_S3_lower    ,  k_S2_S3_upper   ; // Second Ca Association
 float k_S7_S9    ,  k_S7_S9_lower    ,  k_S7_S9_upper  ; // First Ca Dissociation
 float k_S10_S11  ,  k_S10_S11_lower  ,  k_S10_S11_upper ; // Second Ca Dissociation
+//float k_S5_S6    ,  k_S5_S6_lower    ,  k_S5_S6_upper ; // Forward Phosphorylation
+//float k_S8_S7    ,  k_S8_S7_lower    ,  k_S8_S7_upper ; // Forward Phosphorylation
+//float k_S0_S12   ,  k_S0_S12_lower   ,  k_S0_S12_upper ; // Reverse Phosphorylation
+ 
 
 //-----------------------------------------------
 // Particle Swarm Optimization (PSO) parameters
@@ -77,6 +83,17 @@ float X_k_S0_S1_PSO   [n_particles_PSO] , V_k_S0_S1_PSO    [n_particles_PSO];
 float X_k_S2_S3_PSO   [n_particles_PSO] , V_k_S2_S3_PSO    [n_particles_PSO];
 float X_k_S7_S9_PSO   [n_particles_PSO] , V_k_S7_S9_PSO    [n_particles_PSO];
 float X_k_S10_S11_PSO [n_particles_PSO] , V_k_S10_S11_PSO  [n_particles_PSO];
+//float X_k_S5_S6_PSO   [n_particles_PSO] , V_k_S5_S6_PSO    [n_particles_PSO];
+//float X_k_S8_S7_PSO   [n_particles_PSO] , V_k_S8_S7_PSO    [n_particles_PSO];
+//float X_k_S0_S12_PSO  [n_particles_PSO] , V_k_S0_S12_PSO   [n_particles_PSO];
+
+double X_k_S0_S1_PSO_local      [n_particles_PSO];
+double X_k_S2_S3_PSO_local      [n_particles_PSO];
+double X_k_S7_S9_PSO_local      [n_particles_PSO];
+double X_k_S10_S11_PSO_local    [n_particles_PSO];
+//double X_k_S5_S6_PSO_local      [n_particles_PSO];
+//double X_k_S8_S7_PSO_local      [n_particles_PSO];
+//double X_k_S0_S12_PSO_local     [n_particles_PSO];
 
 //-------------------------------------------------------------------
 // Parameters used for global best (gbest) and personal best (pbest)
@@ -84,8 +101,11 @@ float X_k_S10_S11_PSO [n_particles_PSO] , V_k_S10_S11_PSO  [n_particles_PSO];
 //float Ca_cyt_conc_gbest         , Ca_cyt_conc_pbest         [n_particles_PSO];
 float k_S0_S1_gbest   , k_S0_S1_pbest   [n_particles_PSO];
 float k_S2_S3_gbest   , k_S2_S3_pbest   [n_particles_PSO];
-float k_S7_S9_gbest  , k_S7_S9_pbest  [n_particles_PSO];
+float k_S7_S9_gbest   , k_S7_S9_pbest   [n_particles_PSO];
 float k_S10_S11_gbest , k_S10_S11_pbest [n_particles_PSO];
+//float k_S5_S6_gbest   , k_S5_S6_pbest   [n_particles_PSO];
+//float k_S8_S7_gbest   , k_S8_S7_pbest   [n_particles_PSO];
+//float k_S0_S12_gbest  , k_S0_S12_pbest  [n_particles_PSO];
 //--------------------------
 // Function to be called
 //--------------------------
@@ -126,6 +146,14 @@ int main(int argc, char *argv[])
     k_S7_S9_upper           = 1.5*500;
     k_S10_S11_lower         = 0.5*6e2;
     k_S10_S11_upper         = 1.5*6e2;
+//    k_S5_S6_lower           = 06*800;
+//    k_S5_S6_upper           = 1.5*800;
+//    k_S8_S7_lower           = 0.5*1;
+//    k_S8_S7_upper           = 1.5*1;
+//    k_S0_S12_lower          = 0.5*1.5e4;
+//    k_S0_S12_upper          = 1.5*1.5e4;
+  
+    srand(time(NULL)); //Random-Seed initialization (must be outside any loop)
     //------------------------------------------------------------------------------------------//
     //                                                                                          //
     //                                                                                          //
@@ -136,24 +164,50 @@ int main(int argc, char *argv[])
     //                                                                                          //
     //                                                                                          //
     //------------------------------------------------------------------------------------------//
+    //--------------------------------------
+    // set up parallel processes
+    //-------------------------------------
+    ierr = MPI_Init(&argc, &argv);
+    ierr = MPI_Comm_size(MPI_COMM_WORLD, &p);
+    ierr = MPI_Comm_rank(MPI_COMM_WORLD, &id);
+    
+    if ( id == 0 )
+    {
+        cout << "\n";
+        cout << "PARALLEL SERCA MODEL OPTIMIZATION USING MPI\n";
+        cout << "\n";
+        cout << "  An MPI process has begun to run multiple particles in parallel.\n";
+        cout << "  The number of processes is " << p << "\n";
+    }
+
+    int start = id*n_particles_PSO/p;
+    int end = (id+1)*n_particles_PSO/p;
+    
+    cout << "Process " << id << " will begin with particle " << start+1  << " and end with particle " << end  << endl;
     
     //----------------------------------------------
     // Step 1: construct particle-parameter arrays
     //          Particles positions and velocities
     //----------------------------------------------
-    srand(time(NULL)); //Random-Seed initialization (must be outside any loop)
-    for (int i = 0; i < n_particles_PSO; i++)
+    
+    for (int i = start; i < end; i++)
     {
         //-----------
         // positions
         //-----------
         cout << " Particle " << i+1 << " initialized. " << std::endl;
         //X_Ca_cyt_conc_PSO[i] = Ca_cyt_conc_lower  + (Ca_cyt_conc_upper - Ca_cyt_conc_lower) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        X_k_S0_S1_PSO    [i] = k_S0_S1_lower      + (k_S0_S1_upper    - k_S0_S1_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        X_k_S2_S3_PSO    [i] = k_S2_S3_lower      + (k_S2_S3_upper    - k_S2_S3_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        X_k_S7_S9_PSO    [i] = k_S7_S9_lower      + (k_S7_S9_upper    - k_S7_S9_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        X_k_S10_S11_PSO  [i] = k_S10_S11_lower    + (k_S10_S11_upper  - k_S10_S11_lower)   * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        
+        X_k_S0_S1_PSO_local    [i] = k_S0_S1_lower      + (k_S0_S1_upper    - k_S0_S1_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        X_k_S2_S3_PSO_local    [i] = k_S2_S3_lower      + (k_S2_S3_upper    - k_S2_S3_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        X_k_S7_S9_PSO_local    [i] = k_S7_S9_lower      + (k_S7_S9_upper    - k_S7_S9_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        X_k_S10_S11_PSO_local  [i] = k_S10_S11_lower    + (k_S10_S11_upper  - k_S10_S11_lower)   * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    
+//        X_k_S5_S6_PSO_local    [i] = k_S5_S6_lower      + (k_S5_S6_upper    - k_S5_S6_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+//        X_k_S8_S7_PSO_local    [i] = k_S8_S7_lower      + (k_S8_S7_upper    - k_S8_S7_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+//        X_k_S0_S12_PSO_local   [i] = k_S0_S12_lower     + (k_S0_S12_upper   - k_S0_S12_lower)    * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+
+
         //------------------------------------------------------------------
         // Velocities : 0.25*(lower-upper)*rand : this is can be anything
         //--------------------------------------------------------------------
@@ -162,18 +216,25 @@ int main(int argc, char *argv[])
         V_k_S2_S3_PSO     [i] = 0.25* (k_S2_S3_upper    - k_S2_S3_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
         V_k_S7_S9_PSO     [i] = 0.25* (k_S7_S9_upper    - k_S7_S9_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
         V_k_S10_S11_PSO   [i] = 0.25* (k_S10_S11_upper  - k_S10_S11_lower)   * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+//        V_k_S5_S6_PSO     [i] = 0.25* (k_S5_S6_upper    - k_S5_S6_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+//        V_k_S8_S7_PSO     [i] = 0.25* (k_S8_S7_upper    - k_S8_S7_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+//        V_k_S0_S12_PSO    [i] = 0.25* (k_S0_S12_upper   - k_S0_S12_lower)    * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     }
     
     //--------------------------------------------------------------------------
     // Step 2: solve for each particle-parameter sets to obtain residual array
     //---------------------------------------------------------------------------
-    for (int i = 0; i < n_particles_PSO; i++)
+  
+    for (int i = start; i < end; i++)
     {
         //Ca_cyt_conc = X_Ca_cyt_conc_PSO[i];
-        k_S0_S1    = X_k_S0_S1_PSO[i];
-        k_S2_S3    = X_k_S2_S3_PSO[i];
-        k_S7_S9    = X_k_S7_S9_PSO[i];
-        k_S10_S11  = X_k_S10_S11_PSO[i];
+        k_S0_S1    = X_k_S0_S1_PSO_local[i];
+        k_S2_S3    = X_k_S2_S3_PSO_local[i];
+        k_S7_S9    = X_k_S7_S9_PSO_local[i];
+        k_S10_S11  = X_k_S10_S11_PSO_local[i];
+//        k_S5_S6    = X_k_S5_S6_PSO_local[i];
+//        k_S8_S7    = X_k_S8_S7_PSO_local[i];
+//        k_S0_S12   = X_k_S0_S12_PSO_local[i];
         //-----------------------------------------------------------------------------------------
         // Call the force_pCa_curve function to get the force as a function of Ca++ concentrations.
         // NB: this function implicitly calls the other functions.
@@ -189,14 +250,29 @@ int main(int argc, char *argv[])
                                                k_S7_S9,
                                                k_S10_S11
                                                );
+      
+        cout << " Particle # " << i+1 << endl;
+        cout << " k_S0_S1 = " << k_S0_S1 << ", k_S2_S3 = " << k_S2_S3 << ", k_S7_S9 = " << k_S7_S9 << ", k_S10_S11 = " << k_S10_S11 << endl;
+        cout << " Residual =  " << residual_cost_func[i] << endl;
     } // close loop of particle
      cout << "One iteration runtime: " << (time(NULL)-startTime) << " second(s)" << std::endl;
+  
+  MPI_Barrier(MPI_COMM_WORLD); //wait until all reach this point to keep going     
+  MPI_Allreduce(&X_k_S0_S1_PSO_local  , &X_k_S0_S1_PSO    , n_particles_PSO ,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(&X_k_S2_S3_PSO_local  , &X_k_S2_S3_PSO    , n_particles_PSO ,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(&X_k_S7_S9_PSO_local , &X_k_S7_S9_PSO    , n_particles_PSO ,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(&X_k_S10_S11_PSO_local, &X_k_S10_S11_PSO  , n_particles_PSO ,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+//  MPI_Allreduce(&X_k_S5_S6_PSO_local  , &X_k_S5_S6_PSO    , n_particles_PSO ,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+//  MPI_Allreduce(&X_k_S8_S7_PSO_local  , &X_k_S8_S7_PSO    , n_particles_PSO ,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+//  MPI_Allreduce(&X_k_S0_S12_PSO_local , &X_k_S0_S12_PSO   , n_particles_PSO ,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  
+  
     //------------------------------------------
     // Find Min of Residual (i.e., global best)
     //------------------------------------------
     float Res_gbest = residual_cost_func [0];
     int i_Res_gbest = 0;
-    for (int i = 0; i < n_particles_PSO; i++)
+    for (int i = start; i < end; i++)
     {
         if (residual_cost_func [i] < Res_gbest)
         {
@@ -215,6 +291,9 @@ int main(int argc, char *argv[])
     k_S2_S3_gbest     = X_k_S2_S3_PSO[i_Res_gbest];
     k_S7_S9_gbest     = X_k_S7_S9_PSO[i_Res_gbest];
     k_S10_S11_gbest   = X_k_S10_S11_PSO[i_Res_gbest];
+//    k_S5_S6_gbest     = X_k_S5_S6_PSO[i_Res_gbest];
+//    k_S8_S7_gbest     = X_k_S8_S7_PSO[i_Res_gbest];
+//    k_S0_S12_gbest    = X_k_S0_S12_PSO[i_Res_gbest];
     //---------------------------------------------------------------------------------------
     // obtain the parameters that give personal best (pbest)
     // Note: this can be combined with one of the other loop but keep it like that for now
@@ -227,6 +306,9 @@ int main(int argc, char *argv[])
         k_S2_S3_pbest[i]     = X_k_S2_S3_PSO[i];
         k_S7_S9_pbest[i]     = X_k_S7_S9_PSO[i];
         k_S10_S11_pbest[i]   = X_k_S10_S11_PSO[i];
+//        k_S5_S6_pbest[i]     = X_k_S5_S6_PSO[i];
+//        k_S8_S7_pbest[i]     = X_k_S8_S7_PSO[i];
+//        k_S0_S12_pbest[i]    = X_k_S0_S12_PSO[i];
     }
     
     //----------------------------------------------------------------------------------
@@ -261,26 +343,38 @@ int main(int argc, char *argv[])
             
             V_k_S2_S3_PSO[i]    = w  * V_k_S2_S3_PSO [i]      + c1 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (k_S2_S3_pbest[i]   - X_k_S2_S3_PSO[i]) + c2 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (k_S2_S3_gbest      - X_k_S2_S3_PSO[i]) ;
             
-            
             V_k_S7_S9_PSO[i]    = w  * V_k_S7_S9_PSO [i]      + c1 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (k_S7_S9_pbest[i]   - X_k_S7_S9_PSO[i]) + c2 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (k_S7_S9_gbest      - X_k_S7_S9_PSO[i]) ;
             
             V_k_S10_S11_PSO[i]  = w  * V_k_S10_S11_PSO [i]    + c1 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (k_S10_S11_pbest[i]   - X_k_S10_S11_PSO[i]) + c2 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (k_S10_S11_gbest      - X_k_S10_S11_PSO[i]) ;
+
+//            V_k_S5_S6_PSO[i]  = w  * V_k_S5_S6_PSO [i]    + c1 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (k_S5_S6_pbest[i]   - X_k_S5_S6_PSO[i]) + c2 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (k_S5_S6_gbest      - X_k_S5_S6_PSO[i]) ;
+
+//            V_k_S8_S7_PSO[i]  = w  * V_k_S8_S7_PSO [i]    + c1 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (k_S8_S7_pbest[i]   - X_k_S8_S7_PSO[i]) + c2 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (k_S8_S7_gbest      - X_k_S8_S7_PSO[i]) ;
+
+//            V_k_S0_S12_PSO[i]  = w  * V_k_S0_S12_PSO [i]    + c1 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (k_S0_S12_pbest[i]   - X_k_S0_S12_PSO[i]) + c2 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * (k_S0_S12_gbest      - X_k_S0_S12_PSO[i]) ;
+            
             //-----------------
             // position update
             //-----------------
             //X_Ca_cyt_conc_PSO[i] = X_Ca_cyt_conc_PSO[i] + V_Ca_cyt_conc_PSO[i];
-            X_k_S0_S1_PSO[i]     = X_k_S0_S1_PSO[i]     + V_k_S0_S1_PSO[i];
-            X_k_S2_S3_PSO[i]     = X_k_S2_S3_PSO[i]     + V_k_S2_S3_PSO[i];
-            X_k_S7_S9_PSO[i]     = X_k_S7_S9_PSO[i]     + V_k_S7_S9_PSO[i];
-            X_k_S10_S11_PSO[i]   = X_k_S10_S11_PSO[i]   + V_k_S10_S11_PSO[i];
+            X_k_S0_S1_PSO_local[i]     = X_k_S0_S1_PSO[i]    + V_k_S0_S1_PSO[i];
+            X_k_S2_S3_PSO_local[i]     = X_k_S2_S3_PSO[i]     + V_k_S2_S3_PSO[i];
+            X_k_S7_S9_PSO_local[i]     = X_k_S7_S9_PSO[i]     + V_k_S7_S9_PSO[i];
+            X_k_S10_S11_PSO_local[i]   = X_k_S10_S11_PSO[i]   + V_k_S10_S11_PSO[i];
+            //X_k_S5_S6_PSO_local[i]     = X_k_S5_S6_PSO[i]     + V_k_S5_S6_PSO[i];
+ 			      //X_k_S8_S7_PSO_local[i]     = X_k_S8_S7_PSO[i]     + V_k_S8_S7_PSO[i];
+ 			      //X_k_S0_S12_PSO_local[i]    = X_k_S0_S12_PSO[i]    + V_k_S0_S12_PSO[i];
             //---------------------------
             // model parameter update
             //---------------------------
             //Ca_cyt_conc = X_Ca_cyt_conc_PSO[i];
-            k_S0_S1     = X_k_S0_S1_PSO[i];
-            k_S2_S3     = X_k_S2_S3_PSO[i];
-            k_S7_S9     = X_k_S7_S9_PSO[i];
-            k_S10_S11   = X_k_S10_S11_PSO[i]; //** KJM check this
+            k_S0_S1     = X_k_S0_S1_PSO_local[i];
+            k_S2_S3     = X_k_S2_S3_PSO_local[i];
+            k_S7_S9     = X_k_S7_S9_PSO_local[i];
+            k_S10_S11   = X_k_S10_S11_PSO_local[i];
+            //k_S5_S6     = X_k_S5_S6_PSO_local[i];
+            //k_S8_S7     = X_k_S8_S7_PSO_local[i];
+            //k_S0_S12    = X_k_S0_S12_PSO_local[i]; 
             //-----------------------------------------------------
             // residual update using the new particles/parameters
             //----------------------------------------------------
@@ -296,6 +390,16 @@ int main(int argc, char *argv[])
                                                    );
             
         }// end looping over all particles to have new Residual vector
+        
+  MPI_Allreduce(&X_k_S0_S1_PSO_local  , &X_k_S0_S1_PSO    , n_particles_PSO ,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(&X_k_S2_S3_PSO_local  , &X_k_S2_S3_PSO    , n_particles_PSO ,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(&X_k_S7_S9_PSO_local , &X_k_S7_S9_PSO    , n_particles_PSO ,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(&X_k_S10_S11_PSO_local, &X_k_S10_S11_PSO  , n_particles_PSO ,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+//  MPI_Allreduce(&X_k_S5_S6_PSO_local  , &X_k_S5_S6_PSO    , n_particles_PSO ,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+//  MPI_Allreduce(&X_k_S8_S7_PSO_local  , &X_k_S8_S7_PSO    , n_particles_PSO ,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+//  MPI_Allreduce(&X_k_S0_S12_PSO_local , &X_k_S0_S12_PSO   , n_particles_PSO ,MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+      
+         MPI_Barrier(MPI_COMM_WORLD); //wait until all reach this point to keep going  
         
         //--------------------------------------------------
         // Find New Min of Residual (i.e., new global best)
@@ -326,6 +430,9 @@ int main(int argc, char *argv[])
             k_S2_S3_gbest     = X_k_S2_S3_PSO[i_min_Res];
             k_S7_S9_gbest     = X_k_S7_S9_PSO[i_min_Res];
             k_S10_S11_gbest   = X_k_S10_S11_PSO[i_min_Res];
+//            k_S5_S6_gbest     = X_k_S5_S6_PSO[i_min_Res];
+//            k_S8_S7_gbest     = X_k_S8_S7_PSO[i_min_Res];
+//            k_S0_S12_gbest    = X_k_S0_S12_PSO[i_min_Res];
         }
         
         for (int i = 0; i < n_particles_PSO; i++)
@@ -337,6 +444,9 @@ int main(int argc, char *argv[])
                 k_S2_S3_pbest[i]     = X_k_S2_S3_PSO[i];
                 k_S7_S9_pbest[i]     = X_k_S7_S9_PSO[i];
                 k_S10_S11_pbest[i]   = X_k_S10_S11_PSO[i];
+//                k_S5_S6_pbest[i]     = X_k_S5_S6_PSO[i];
+//                k_S8_S7_pbest[i]     = X_k_S8_S7_PSO[i];
+//                k_S0_S12_pbest[i]    = X_k_S0_S12_PSO[i];
                 
                 //--------
                 Res_pbest[i] = residual_cost_func [i];
@@ -346,11 +456,16 @@ int main(int argc, char *argv[])
         
         
     }// end swarm iteration
-    cout << "\"Res_gbest\"," << Res_gbest << endl;
-    cout << "\"k_S0_S1_gbest\"," << k_S0_S1_gbest << endl;
-    cout << "\"k_S2_S3_gbest\"," << k_S2_S3_gbest << endl;
-    cout << "\"k_S9_S10_gbest\"," << k_S7_S9_gbest << endl;
+  
+  MPI_Finalize(); // end parallel process
+    cout << "\"Res_gbest\","       << Res_gbest << endl;
+    cout << "\"k_S0_S1_gbest\","   << k_S0_S1_gbest << endl;
+    cout << "\"k_S2_S3_gbest\","   << k_S2_S3_gbest << endl;
+    cout << "\"k_S9_S10_gbest\","  << k_S7_S9_gbest << endl;
     cout << "\"k_S10_S11_pbest\"," << k_S10_S11_pbest << endl;
+//    cout << "\"k_S5_S6_pbest\","   << k_S5_S6_pbest << endl;
+//    cout << "\"k_S8_S7_pbest\","   << k_S8_S7_pbest << endl;
+//    cout << "\"k_S0_S12_pbest\","  << k_S0_S12_pbest << endl;
     cout << "Total Runtime: " << (time(NULL)-startTime) << " second(s)" << endl;
     
     return 0;

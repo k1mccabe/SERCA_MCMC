@@ -101,7 +101,8 @@ float get_Residual(int    & n_SERCA_Molecules,
                    float  & k_S0_S1,
                    float  & k_S2_S3,
                    float  & k_S7_S9,
-                   float  & k_S10_S11)
+                   float  & k_S10_S11
+                   )
 {
     float boundSS_max_temp = 0; // this will figure out the highest bound Ca for our loop
     float calConc[16] = {   1.13465021562703E-07,
@@ -144,7 +145,6 @@ float get_Residual(int    & n_SERCA_Molecules,
     
     
     residual = 0;
-    t1=clock();
     float ss_bound_Ca[n_pCa];
     float norm_ss_bound_Ca[n_pCa];
     
@@ -169,7 +169,7 @@ float get_Residual(int    & n_SERCA_Molecules,
         k_S4_S3           = 30;    // Transition rate of  E'.ATP.Ca2 to E'.Ca2            Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
         k_S4_S5           = 200;   // Transition rate of  E'.ATP.Ca2 to E'~P.ADP.Ca2      Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
         k_S5_S4           = 350;   // Transition rate of  E'~P.ADP.Ca2 to E'.ATP.Ca2      Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S5_S6           = 800;   // Transition rate of  E'~P.ADP.Ca2 to *E'-P.ADP.Ca2   Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+        k_S5_S6           = 800;   // Transition rate of  E'~P.ADP.Ca2 to *E'-P.ADP.Ca2   Units (s^-1)      Inesi Methods in Enzymo gy (1988) 157:154-190
         k_S6_S5           = 200;   // Transition rate of *E'-P.ADP.Ca2 to E'~P.ADP.Ca2    Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
         k_S6_S7           = 500;   // Transition rate of *E'-P.ADP.Ca2 to *E'-P.Ca2       Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
         k_S7_S6           = 4e6;   // Transition rate of *E'-P.Ca2 to *E'.ADP-P.Ca2       Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
