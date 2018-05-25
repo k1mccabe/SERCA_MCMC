@@ -10,7 +10,7 @@ CXXFLAGS = -Wall -g
 # Targets needed to bring the executable up to date
 all: main 
 
-main: main.o get_Residual.o update_States.o
+main: main.o get_Residual.o update_States.o lastRun.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 clean:

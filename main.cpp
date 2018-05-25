@@ -119,6 +119,16 @@ float get_Residual  (int    & n_SERCA,
                      float  & k_S7_S9,
                      float  & k_S10_S11
                      );
+void lastRun  		(int    & n_SERCA,
+                     int    & max_tsteps,
+                     float  & dt,
+                     int    & n_s,
+                     int    & n_pCa,
+                     float  & k_S0_S1,
+                     float  & k_S2_S3,
+                     float  & k_S7_S9,
+                     float  & k_S10_S11
+                     );
 //-------------------------
 // main body code
 //------------------------
@@ -462,11 +472,21 @@ int main(int argc, char *argv[])
     cout << "\"k_S0_S1_gbest\","   << k_S0_S1_gbest << endl;
     cout << "\"k_S2_S3_gbest\","   << k_S2_S3_gbest << endl;
     cout << "\"k_S9_S10_gbest\","  << k_S7_S9_gbest << endl;
-    cout << "\"k_S10_S11_pbest\"," << k_S10_S11_pbest << endl;
+    cout << "\"k_S10_S11_pbest\"," << k_S10_S11_gbest << endl;
 //    cout << "\"k_S5_S6_pbest\","   << k_S5_S6_pbest << endl;
 //    cout << "\"k_S8_S7_pbest\","   << k_S8_S7_pbest << endl;
 //    cout << "\"k_S0_S12_pbest\","  << k_S0_S12_pbest << endl;
-    cout << "Total Runtime: " << (time(NULL)-startTime) << " second(s)" << endl;
+    cout << "Total Optimization Runtime: " << (time(NULL)-startTime) << " second(s)" << endl;
+
+    lastRun(n_SERCA,
+    		max_tsteps,
+    		dt,
+    		n_s,
+    		n_pCa,
+    		k_S0_S1_gbest,
+    		k_S2_S3_gbest,
+    		k_S7_S9_gbest,
+    		k_S10_S11_gbest);
     
     return 0;
 } // end main function
