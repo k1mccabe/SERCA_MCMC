@@ -123,7 +123,7 @@ float get_Residual  (int    & n_SERCA,
                      float  & k_S0_S1,
                      float  & k_S2_S3,
                      float  & k_S7_S9,
-                     float  & k_S10_S11,float  & k_S1_S0, float  & k_S1_S2,  float  & k_S2_S1, float  & k_S3_S2, float  & k_S3_S4,  float  & k_S4_S3, float  & k_S4_S5, float  & k_S5_S4, float  & k_S5_S6,  float  & k_S6_S5, float  & k_S6_S7, float  & k_S7_S6, float  & k_S5_S8,  float  & k_S8_S5, float  & k_S8_S7, float  & k_S7_S8,  float  & k_S9_S7, float  & k_S9_S10, float  & k_S10_S9,float  & k_S11_S10, float  & k_S11_S12,float  & k_S12_S11,float  & k_S12_S0,float  & k_S0_S12,float  & Ca_cyt_conc,float  & Ca_sr_conc,float  & MgATP_conc,float  & MgADP_conc,float  & Pi_conc
+                     float  & k_S10_S11,float  & k_S1_S0, float  & k_S1_S2,  float  & k_S2_S1, float  & k_S3_S2, float  & k_S3_S4,  float  & k_S4_S3, float  & k_S4_S5, float  & k_S5_S4, float  & k_S5_S6,  float  & k_S6_S5, float  & k_S6_S7, float  & k_S7_S6, float  & k_S5_S8,  float  & k_S8_S5, float  & k_S8_S7, float  & k_S7_S8,  float  & k_S9_S7, float  & k_S9_S10, float  & k_S10_S9,float  & k_S11_S10, float  & k_S11_S12,float  & k_S12_S11,float  & k_S12_S0,float  & k_S0_S12,float  & Ca_sr_conc,float  & MgATP_conc,float  & MgADP_conc,float  & Pi_conc
                      );
 void lastRun  		(int    & n_SERCA,
                      int    & max_tsteps,
@@ -133,7 +133,7 @@ void lastRun  		(int    & n_SERCA,
                      float  & k_S0_S1,
                      float  & k_S2_S3,
                      float  & k_S7_S9,
-                     float  & k_S10_S11,float  & k_S1_S0, float  & k_S1_S2,  float  & k_S2_S1, float  & k_S3_S2, float  & k_S3_S4,  float  & k_S4_S3, float  & k_S4_S5, float  & k_S5_S4, float  & k_S5_S6,  float  & k_S6_S5, float  & k_S6_S7, float  & k_S7_S6, float  & k_S5_S8,  float  & k_S8_S5, float  & k_S8_S7, float  & k_S7_S8,  float  & k_S9_S7, float  & k_S9_S10, float  & k_S10_S9,float  & k_S11_S10, float  & k_S11_S12,float  & k_S12_S11,float  & k_S12_S0,float  & k_S0_S12,float  & Ca_cyt_conc,float  & Ca_sr_conc,float  & MgATP_conc,float  & MgADP_conc,float  & Pi_conc
+                     float  & k_S10_S11,float  & k_S1_S0, float  & k_S1_S2,  float  & k_S2_S1, float  & k_S3_S2, float  & k_S3_S4,  float  & k_S4_S3, float  & k_S4_S5, float  & k_S5_S4, float  & k_S5_S6,  float  & k_S6_S5, float  & k_S6_S7, float  & k_S7_S6, float  & k_S5_S8,  float  & k_S8_S5, float  & k_S8_S7, float  & k_S7_S8,  float  & k_S9_S7, float  & k_S9_S10, float  & k_S10_S9,float  & k_S11_S10, float  & k_S11_S12,float  & k_S12_S11,float  & k_S12_S0,float  & k_S0_S12,float  & Ca_sr_conc,float  & MgATP_conc,float  & MgADP_conc,float  & Pi_conc
                      );
 //-------------------------
 // main body code
@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
                                                k_S0_S1,
                                                k_S2_S3,
                                                k_S7_S9,
-                                               k_S10_S11, k_S1_S0, k_S1_S2,  k_S2_S1, k_S3_S2, k_S3_S4,  k_S4_S3, k_S4_S5, k_S5_S4, k_S5_S6,  k_S6_S5, k_S6_S7, k_S7_S6, k_S5_S8,  k_S8_S5, k_S8_S7, k_S7_S8,  k_S9_S7, k_S9_S10, k_S10_S9,k_S11_S10, k_S11_S12,k_S12_S11,k_S12_S0,k_S0_S12, Ca_cyt_conc, Ca_sr_conc, MgATP_conc, MgADP_conc, Pi_conc
+                                               k_S10_S11, k_S1_S0, k_S1_S2,  k_S2_S1, k_S3_S2, k_S3_S4,  k_S4_S3, k_S4_S5, k_S5_S4, k_S5_S6,  k_S6_S5, k_S6_S7, k_S7_S6, k_S5_S8,  k_S8_S5, k_S8_S7, k_S7_S8,  k_S9_S7, k_S9_S10, k_S10_S9,k_S11_S10, k_S11_S12,k_S12_S11,k_S12_S0,k_S0_S12, Ca_sr_conc, MgATP_conc, MgADP_conc, Pi_conc
                                                );
       
         cout << " Particle # " << i+1 << endl;
@@ -443,7 +443,7 @@ int main(int argc, char *argv[])
                                                    k_S0_S1,
                                                    k_S2_S3,
                                                    k_S7_S9,
-                                                   k_S10_S11, k_S1_S0, k_S1_S2,  k_S2_S1, k_S3_S2, k_S3_S4,  k_S4_S3, k_S4_S5, k_S5_S4, k_S5_S6,  k_S6_S5, k_S6_S7, k_S7_S6, k_S5_S8,  k_S8_S5, k_S8_S7, k_S7_S8,  k_S9_S7, k_S9_S10, k_S10_S9,k_S11_S10, k_S11_S12,k_S12_S11,k_S12_S0,k_S0_S12, Ca_cyt_conc, Ca_sr_conc, MgATP_conc, MgADP_conc, Pi_conc
+                                                   k_S10_S11, k_S1_S0, k_S1_S2,  k_S2_S1, k_S3_S2, k_S3_S4,  k_S4_S3, k_S4_S5, k_S5_S4, k_S5_S6,  k_S6_S5, k_S6_S7, k_S7_S6, k_S5_S8,  k_S8_S5, k_S8_S7, k_S7_S8,  k_S9_S7, k_S9_S10, k_S10_S9,k_S11_S10, k_S11_S12,k_S12_S11,k_S12_S0,k_S0_S12, Ca_sr_conc, MgATP_conc, MgADP_conc, Pi_conc
                                                    );
             
         }// end looping over all particles to have new Residual vector
@@ -533,7 +533,7 @@ int main(int argc, char *argv[])
     		k_S0_S1_gbest,
     		k_S2_S3_gbest,
     		k_S7_S9_gbest,
-    		k_S10_S11_gbest, k_S1_S0, k_S1_S2,  k_S2_S1, k_S3_S2, k_S3_S4,  k_S4_S3, k_S4_S5, k_S5_S4, k_S5_S6,  k_S6_S5, k_S6_S7, k_S7_S6, k_S5_S8,  k_S8_S5, k_S8_S7, k_S7_S8,  k_S9_S7, k_S9_S10, k_S10_S9,k_S11_S10, k_S11_S12,k_S12_S11,k_S12_S0,k_S0_S12, Ca_cyt_conc, Ca_sr_conc, MgATP_conc, MgADP_conc, Pi_conc);
+    		k_S10_S11_gbest, k_S1_S0, k_S1_S2,  k_S2_S1, k_S3_S2, k_S3_S4,  k_S4_S3, k_S4_S5, k_S5_S4, k_S5_S6,  k_S6_S5, k_S6_S7, k_S7_S6, k_S5_S8,  k_S8_S5, k_S8_S7, k_S7_S8,  k_S9_S7, k_S9_S10, k_S10_S9,k_S11_S10, k_S11_S12,k_S12_S11,k_S12_S0,k_S0_S12, Ca_sr_conc, MgATP_conc, MgADP_conc, Pi_conc);
     
     return 0;
 } // end main function
