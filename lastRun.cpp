@@ -824,7 +824,7 @@ void lastRun  		(int    & n_SERCA_Molecules,
     //----------------------------------------------------------
     std::string filename = "Time_Data_gbest.csv";
     
-    ofstream time_states_out(filename); //opening an output stream for file test.txt
+    ofstream time_states_out(filename.c_str()); //opening an output stream for file test.txt
     if(time_states_out.is_open()) //checking whether file could be opened or not.
     {
         // create headers for file
@@ -843,7 +843,7 @@ void lastRun  		(int    & n_SERCA_Molecules,
     //----------------------------------------------------------
     std::string filename2 = "SS_Data_gbest.csv";
     
-    ofstream ss_out(filename2); //opening an output stream for file test.txt
+    ofstream ss_out(filename2.c_str()); //opening an output stream for file test.txt
     if(ss_out.is_open()) //checking whether file could be opened or not.
     {
         
