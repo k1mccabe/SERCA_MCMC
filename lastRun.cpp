@@ -65,7 +65,7 @@ bool open_closed; //O is open 1 is closed
 
 
 void lastRun  		(int    & n_SERCA,
-                     int    & max_tsteps,
+                     int    & tsteps,
                      float  & dt,
                      int    & n_s,
                      int    & n_pCa,

@@ -50,7 +50,7 @@
 #include <time.h>
 
 
-//const int   tsteps              = 1000001;
+//const int   max_tsteps              = 1000001;
 const int save_jump = 1000; //how many output values should we keep? To minimize memory usage, we will keep every 10 timepoints.
 
 using namespace std;
@@ -135,7 +135,21 @@ float get_Residual(int    & n_SERCA,
                                     1};
 
     
-    
+    //CHANGED - this was taking up too much memory. Now only saving every 10 timesteps.
+    //float Time[(max_tsteps-1)/10];
+    float S0[(max_tsteps-1)/10];         // used to find how many S0 molecules in each iteration ("E")
+    float S1[(max_tsteps-1)/10];         //  "E.Ca"
+    float S2[(max_tsteps-1)/10];         //  "E'.Ca"
+    float S3[(max_tsteps-1)/10];         //  "E'.Ca2"
+    float S4[(max_tsteps-1)/10];         //  "E'.ATP.Ca2"
+    float S5[(max_tsteps-1)/10];         //  "E'~P.ADP.Ca2"
+    float S6[(max_tsteps-1)/10];         // "*E'~P.ADP.Ca2"
+    float S7[(max_tsteps-1)/10];         // "*E'-P.Ca2"
+    float S8[(max_tsteps-1)/10];         //  "E'~P.Ca2"
+    float S9[(max_tsteps-1)/10];         // "*E-P.Ca2"
+    float S10[(max_tsteps-1)/10];        // "*E-P.Ca"
+    float S11[(max_tsteps-1)/10];        // "*E-P"
+    float S12[(max_tsteps-1)/10];        // "*E-Pi"
     
     
     
@@ -150,21 +164,7 @@ float get_Residual(int    & n_SERCA,
         // SIMULATION FOR SS CURVE
         //-----------------------
         //Creating a vector named tstapes (list of elements of States S0-S12) defining the occupancy of each state according to time at each time step
-        //CHANGED - this was taking up too much memory. Now only saving every 10 timesteps.
-        //float Time[(tsteps-1)/10];
-        float S0[(tsteps-1)/10];         // used to find how many S0 molecules in each iteration ("E")
-        float S1[(tsteps-1)/10];         //  "E.Ca"
-        float S2[(tsteps-1)/10];         //  "E'.Ca"
-        float S3[(tsteps-1)/10];         //  "E'.Ca2"
-        float S4[(tsteps-1)/10];         //  "E'.ATP.Ca2"
-        float S5[(tsteps-1)/10];         //  "E'~P.ADP.Ca2"
-        float S6[(tsteps-1)/10];         // "*E'~P.ADP.Ca2"
-        float S7[(tsteps-1)/10];         // "*E'-P.Ca2"
-        float S8[(tsteps-1)/10];         //  "E'~P.Ca2"
-        float S9[(tsteps-1)/10];         // "*E-P.Ca2"
-        float S10[(tsteps-1)/10];        // "*E-P.Ca"
-        float S11[(tsteps-1)/10];        // "*E-P"
-        float S12[(tsteps-1)/10];        // "*E-Pi"
+
         
         // create a temporary count (initial count of state and set it equal to zero. The count will be calculated and set equal to the variables above for each state. This is because C++ will use the last value that was defined, so its a “clear” or reset function
         S0_temp = 0;
@@ -208,7 +208,7 @@ float get_Residual(int    & n_SERCA,
             // start time loop i.e., using n-index
             //----------------------------------------------------------------------------------------------------------------//
             int output_count = 10; //every 10 timepoints, we will save the data (starting with data point 0)
-            for (int n = 0; n < tsteps; n++)  // time marching
+            for (int n = 0; n < max_tsteps; n++)  // time marching
             {  // begin n-loop for time marching
                 //
                 //setting counts of all states equal to zero to initialize which will later be used to find how many SERCA in each iteration
@@ -332,7 +332,7 @@ float get_Residual(int    & n_SERCA,
         // (i.e., just 10000 time steps, considering we only saved every 10 timesteps) only using numerical trapaziodal integration
         //--------------------------------------------------------------------------------------
         
-        for (int n = tsteps-10000; n < tsteps-1; n++)  // time marching
+        for (int n = max_tsteps-10000; n < max_tsteps-1; n++)  // time marching
         {
             S0_temp  = S0_temp   +(S0[n/save_jump]  /n_SERCA_Molecules);
             S1_temp  = S1_temp   +(S1[n/save_jump]  /n_SERCA_Molecules);
@@ -375,7 +375,7 @@ float get_Residual(int    & n_SERCA,
         {
             // create headers for file
             time_states_out << "Time,S0,S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12" << endl; // write the average force
-            for (int n = 0; n < (tsteps-1)/save_jump; n++)  // time marching
+            for (int n = 0; n < (max_tsteps-1)/save_jump; n++)  // time marching
             {
                 
                 Time [n] = (n*save_jump*dt);
