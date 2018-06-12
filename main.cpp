@@ -108,7 +108,7 @@ float k_S10_S11_gbest , k_S10_S11_pbest [n_particles_PSO];
 //float k_S0_S12_gbest  , k_S0_S12_pbest  [n_particles_PSO];
 // declare all non-changing variables
 float    k_S1_S0, k_S1_S2,  k_S2_S1, k_S3_S2, k_S3_S4,  k_S4_S3, k_S4_S5, k_S5_S4, k_S5_S6,  k_S6_S5, k_S6_S7, k_S7_S6, k_S5_S8,  k_S8_S5, k_S8_S7, k_S7_S8,  k_S9_S7, k_S9_S10, k_S10_S9,k_S11_S10, k_S11_S12,k_S12_S11,k_S12_S0,k_S0_S12;
-float Ca_cyt_conc, Ca_sr_conc, MgATP_conc, MgADP_conc, Pi_conc;
+float  Ca_sr_conc, MgATP_conc, MgADP_conc, Pi_conc;
 
 
 
@@ -171,7 +171,6 @@ int main(int argc, char *argv[])
     /*----------------------------*/
     /* Assign Model parameters    */
     /*----------------------------*/
-    Ca_cyt_conc       = calConc[cal];  // needs citation
     Ca_sr_conc        = 1.3e-3;// needs citation
     MgATP_conc        = 5e-3;  // needs citation
     MgADP_conc        = 36e-6; // needs citation
@@ -306,7 +305,7 @@ int main(int argc, char *argv[])
                                                k_S0_S1,
                                                k_S2_S3,
                                                k_S7_S9,
-                                               k_S10_S11
+                                               k_S10_S11, k_S1_S0, k_S1_S2,  k_S2_S1, k_S3_S2, k_S3_S4,  k_S4_S3, k_S4_S5, k_S5_S4, k_S5_S6,  k_S6_S5, k_S6_S7, k_S7_S6, k_S5_S8,  k_S8_S5, k_S8_S7, k_S7_S8,  k_S9_S7, k_S9_S10, k_S10_S9,k_S11_S10, k_S11_S12,k_S12_S11,k_S12_S0,k_S0_S12, Ca_cyt_conc, Ca_sr_conc, MgATP_conc, MgADP_conc, Pi_conc
                                                );
       
         cout << " Particle # " << i+1 << endl;

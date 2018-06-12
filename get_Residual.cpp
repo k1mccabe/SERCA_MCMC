@@ -54,7 +54,7 @@
 const int save_jump = 1000; //how many output values should we keep? To minimize memory usage, we will keep every 10 timepoints.
 
 using namespace std;
-
+float Ca_cyt_conc;
 
 float count_S0, count_S1, count_S2, count_S3, count_S4, count_S5, count_S6, count_S7, count_S8, count_S9, count_S10, count_S11, count_S12;
 float S0_SS, S1_SS, S2_SS, S3_SS, S4_SS, S5_SS, S6_SS, S7_SS, S8_SS, S9_SS, S10_SS, S11_SS, S12_SS;
@@ -145,7 +145,7 @@ float get_Residual(int    & n_SERCA,
     
     for (int cal = 0; cal < n_pCa; cal++)
     {
-        
+            Ca_cyt_conc       = calConc[cal];  // needs citation
         //-----------------------
         // SIMULATION FOR SS CURVE
         //-----------------------
