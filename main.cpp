@@ -106,6 +106,12 @@ float k_S10_S11_gbest , k_S10_S11_pbest [n_particles_PSO];
 //float k_S5_S6_gbest   , k_S5_S6_pbest   [n_particles_PSO];
 //float k_S8_S7_gbest   , k_S8_S7_pbest   [n_particles_PSO];
 //float k_S0_S12_gbest  , k_S0_S12_pbest  [n_particles_PSO];
+// declare all non-changing variables
+float    k_S1_S0, k_S1_S2,  k_S2_S1, k_S3_S2, k_S3_S4,  k_S4_S3, k_S4_S5, k_S5_S4, k_S5_S6,  k_S6_S5, k_S6_S7, k_S7_S6, k_S5_S8,  k_S8_S5, k_S8_S7, k_S7_S8,  k_S9_S7, k_S9_S10, k_S10_S9,k_S11_S10, k_S11_S12,k_S12_S11,k_S12_S0,k_S0_S12;
+float Ca_cyt_conc, Ca_sr_conc, MgATP_conc, MgADP_conc, Pi_conc;
+
+
+
 //--------------------------
 // Function to be called
 //--------------------------
@@ -117,7 +123,7 @@ float get_Residual  (int    & n_SERCA,
                      float  & k_S0_S1,
                      float  & k_S2_S3,
                      float  & k_S7_S9,
-                     float  & k_S10_S11
+                     float  & k_S10_S11,float  & k_S1_S0, float  & k_S1_S2,  float  & k_S2_S1, float  & k_S3_S2, float  & k_S3_S4,  float  & k_S4_S3, float  & k_S4_S5, float  & k_S5_S4, float  & k_S5_S6,  float  & k_S6_S5, float  & k_S6_S7, float  & k_S7_S6, float  & k_S5_S8,  float  & k_S8_S5, float  & k_S8_S7, float  & k_S7_S8,  float  & k_S9_S7, float  & k_S9_S10, float  & k_S10_S9,float  & k_S11_S10, float  & k_S11_S12,float  & k_S12_S11,float  & k_S12_S0,float  & k_S0_S12,float  & Ca_cyt_conc,float  & Ca_sr_conc,float  & MgATP_conc,float  & MgADP_conc,float  & Pi_conc
                      );
 void lastRun  		(int    & n_SERCA,
                      int    & max_tsteps,
@@ -127,7 +133,7 @@ void lastRun  		(int    & n_SERCA,
                      float  & k_S0_S1,
                      float  & k_S2_S3,
                      float  & k_S7_S9,
-                     float  & k_S10_S11
+                     float  & k_S10_S11,float  & k_S1_S0, float  & k_S1_S2,  float  & k_S2_S1, float  & k_S3_S2, float  & k_S3_S4,  float  & k_S4_S3, float  & k_S4_S5, float  & k_S5_S4, float  & k_S5_S6,  float  & k_S6_S5, float  & k_S6_S7, float  & k_S7_S6, float  & k_S5_S8,  float  & k_S8_S5, float  & k_S8_S7, float  & k_S7_S8,  float  & k_S9_S7, float  & k_S9_S10, float  & k_S10_S9,float  & k_S11_S10, float  & k_S11_S12,float  & k_S12_S11,float  & k_S12_S0,float  & k_S0_S12,float  & Ca_cyt_conc,float  & Ca_sr_conc,float  & MgATP_conc,float  & MgADP_conc,float  & Pi_conc
                      );
 //-------------------------
 // main body code
@@ -162,6 +168,48 @@ int main(int argc, char *argv[])
 //    k_S8_S7_upper           = 1.5*1;
 //    k_S0_S12_lower          = 0.5*1.5e4;
 //    k_S0_S12_upper          = 1.5*1.5e4;
+    /*----------------------------*/
+    /* Assign Model parameters    */
+    /*----------------------------*/
+    Ca_cyt_conc       = calConc[cal];  // needs citation
+    Ca_sr_conc        = 1.3e-3;// needs citation
+    MgATP_conc        = 5e-3;  // needs citation
+    MgADP_conc        = 36e-6; // needs citation
+    Pi_conc           = 1e-3;  // needs citation
+    
+    //k_S0_S1           = 4e7;   // Transition rate of  E to E.Ca                       Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
+    k_S1_S0           = 4.5e2;  // Transition rate of  E.Ca to E                       Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S1_S2           = 120;   // Transition rate of  E.Ca to E'.Ca                   Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S2_S1           = 25;    // Transition rate of  E'.Ca to E.Ca                   Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    //k_S2_S3           = 1e8;   // Transition rate of  E'.Ca to E'.Ca2                 Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
+    k_S3_S2           = 16;    // Transition rate of  E'.Ca2 to E'.Ca                 Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S3_S4           = 6e7;   // Transition rate of  E'.Ca2 to E'.ATP.Ca2            Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
+    k_S4_S3           = 30;    // Transition rate of  E'.ATP.Ca2 to E'.Ca2            Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S4_S5           = 200;   // Transition rate of  E'.ATP.Ca2 to E'~P.ADP.Ca2      Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S5_S4           = 350;   // Transition rate of  E'~P.ADP.Ca2 to E'.ATP.Ca2      Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S5_S6           = 800;   // Transition rate of  E'~P.ADP.Ca2 to *E'-P.ADP.Ca2   Units (s^-1)      Inesi Methods in Enzymo gy (1988) 157:154-190
+    k_S6_S5           = 200;   // Transition rate of *E'-P.ADP.Ca2 to E'~P.ADP.Ca2    Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S6_S7           = 500;   // Transition rate of *E'-P.ADP.Ca2 to *E'-P.Ca2       Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S7_S6           = 4e6;   // Transition rate of *E'-P.Ca2 to *E'.ADP-P.Ca2       Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
+    k_S5_S8           = 6;     // Transition rate of *E'~P.ADP.Ca2 to E'~P.Ca2        Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S8_S5           = 1.25e3;// Transition rate of  E'~P.Ca2 to *E'~P.ADP.Ca2       Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S8_S7           = 1;     // Transition rate of  E'~P.Ca2 to *E'-P.Ca2           Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S7_S8           = 10;    // Transition rate of *E'-P.Ca2 to E'~P.Ca2            Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    //k_S7_S9           = 500;   // Transition rate of *E'-P.Ca2 to *E-P.Ca2            Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S9_S7           = 5e5;   // Transition rate of *E-P.Ca2 to *E'-P.Ca2            Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
+    k_S9_S10          = 20;    // Transition rate of *E-P.Ca2 to *E-P.Ca              Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S10_S9          = 20;    // Transition rate of *E-P.Ca to *E-P.Ca2              Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    //k_S10_S11         = 6e2;   // Transition rate of *E-P.Ca to *E-P                  Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S11_S10         = 6e4;   // Transition rate of *E-P to *E-P.Ca                  Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
+    k_S11_S12         = 60;    // Transition rate of *E-P to *E-Pi                    Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S12_S11         = 60;    // Transition rate of *E-Pi to *E-P                    Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S12_S0          = 6e2;   // Transition rate of *E-Pi to E                       Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
+    k_S0_S12          = 1.5e4; // Transition rate of  E to *E-Pi                      Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
+    //end parameter setup
+    
+    
+    
+    
   
     srand(time(NULL)); //Random-Seed initialization (must be outside any loop)
     //------------------------------------------------------------------------------------------//
@@ -396,7 +444,7 @@ int main(int argc, char *argv[])
                                                    k_S0_S1,
                                                    k_S2_S3,
                                                    k_S7_S9,
-                                                   k_S10_S11
+                                                   k_S10_S11, k_S1_S0, k_S1_S2,  k_S2_S1, k_S3_S2, k_S3_S4,  k_S4_S3, k_S4_S5, k_S5_S4, k_S5_S6,  k_S6_S5, k_S6_S7, k_S7_S6, k_S5_S8,  k_S8_S5, k_S8_S7, k_S7_S8,  k_S9_S7, k_S9_S10, k_S10_S9,k_S11_S10, k_S11_S12,k_S12_S11,k_S12_S0,k_S0_S12, Ca_cyt_conc, Ca_sr_conc, MgATP_conc, MgADP_conc, Pi_conc
                                                    );
             
         }// end looping over all particles to have new Residual vector
@@ -486,7 +534,7 @@ int main(int argc, char *argv[])
     		k_S0_S1_gbest,
     		k_S2_S3_gbest,
     		k_S7_S9_gbest,
-    		k_S10_S11_gbest);
+    		k_S10_S11_gbest, k_S1_S0, k_S1_S2,  k_S2_S1, k_S3_S2, k_S3_S4,  k_S4_S3, k_S4_S5, k_S5_S4, k_S5_S6,  k_S6_S5, k_S6_S7, k_S7_S6, k_S5_S8,  k_S8_S5, k_S8_S7, k_S7_S8,  k_S9_S7, k_S9_S10, k_S10_S9,k_S11_S10, k_S11_S12,k_S12_S11,k_S12_S0,k_S0_S12, Ca_cyt_conc, Ca_sr_conc, MgATP_conc, MgADP_conc, Pi_conc);
     
     return 0;
 } // end main function
