@@ -4,8 +4,7 @@
 # Variables to control Makefile operation
 
 CXX = g++
-CXXFLAGS = -Wall -g
-
+CXXFLAGS = -Wall -g -I/usr/include/openmpi-x86_64 #for use on amarolab computers
 # ****************************************************
 # Targets needed to bring the executable up to date
 all: main 

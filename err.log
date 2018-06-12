@@ -1,0 +1,61 @@
+g++ -Wall -g -I/usr/include/openmpi-x86_64    -c -o lastRun.o lastRun.cpp
+lastRun.cpp:16:1: warning: multi-line comment [-Wcomment]
+ //           /\                                                                  //  \\
+ ^
+lastRun.cpp:244:13: warning: multi-line comment [-Wcomment]
+             //           /\                                                                  //  \\
+             ^
+lastRun.cpp:276:13: warning: multi-line comment [-Wcomment]
+             //                                                                 /\
+             ^
+lastRun.cpp:337:13: warning: multi-line comment [-Wcomment]
+             //           /\
+             ^
+lastRun.cpp:368:13: warning: multi-line comment [-Wcomment]
+             //           /\
+             ^
+lastRun.cpp:476:13: warning: multi-line comment [-Wcomment]
+             //                  //  \\
+             ^
+lastRun.cpp:513:13: warning: multi-line comment [-Wcomment]
+             //                /\
+             ^
+lastRun.cpp:577:13: warning: multi-line comment [-Wcomment]
+             //          \\
+             ^
+lastRun.cpp: In function ‘void lastRun(int&, int&, float&, int&, float&, float&, float&, float&)’:
+lastRun.cpp:827:38: error: no matching function for call to ‘std::basic_ofstream<char>::basic_ofstream(std::string&)’
+     ofstream time_states_out(filename); //opening an output stream for file test.txt
+                                      ^
+lastRun.cpp:827:38: note: candidates are:
+In file included from lastRun.cpp:47:0:
+/soft/gcc/4.8.1/include/c++/4.8.1/fstream:640:7: note: std::basic_ofstream<_CharT, _Traits>::basic_ofstream(const char*, std::ios_base::openmode) [with _CharT = char; _Traits = std::char_traits<char>; std::ios_base::openmode = std::_Ios_Openmode]
+       basic_ofstream(const char* __s,
+       ^
+/soft/gcc/4.8.1/include/c++/4.8.1/fstream:640:7: note:   no known conversion for argument 1 from ‘std::string {aka std::basic_string<char>}’ to ‘const char*’
+/soft/gcc/4.8.1/include/c++/4.8.1/fstream:625:7: note: std::basic_ofstream<_CharT, _Traits>::basic_ofstream() [with _CharT = char; _Traits = std::char_traits<char>]
+       basic_ofstream(): __ostream_type(), _M_filebuf()
+       ^
+/soft/gcc/4.8.1/include/c++/4.8.1/fstream:625:7: note:   candidate expects 0 arguments, 1 provided
+/soft/gcc/4.8.1/include/c++/4.8.1/fstream:599:11: note: std::basic_ofstream<char>::basic_ofstream(const std::basic_ofstream<char>&)
+     class basic_ofstream : public basic_ostream<_CharT,_Traits>
+           ^
+/soft/gcc/4.8.1/include/c++/4.8.1/fstream:599:11: note:   no known conversion for argument 1 from ‘std::string {aka std::basic_string<char>}’ to ‘const std::basic_ofstream<char>&’
+lastRun.cpp:846:30: error: no matching function for call to ‘std::basic_ofstream<char>::basic_ofstream(std::string&)’
+     ofstream ss_out(filename2); //opening an output stream for file test.txt
+                              ^
+lastRun.cpp:846:30: note: candidates are:
+In file included from lastRun.cpp:47:0:
+/soft/gcc/4.8.1/include/c++/4.8.1/fstream:640:7: note: std::basic_ofstream<_CharT, _Traits>::basic_ofstream(const char*, std::ios_base::openmode) [with _CharT = char; _Traits = std::char_traits<char>; std::ios_base::openmode = std::_Ios_Openmode]
+       basic_ofstream(const char* __s,
+       ^
+/soft/gcc/4.8.1/include/c++/4.8.1/fstream:640:7: note:   no known conversion for argument 1 from ‘std::string {aka std::basic_string<char>}’ to ‘const char*’
+/soft/gcc/4.8.1/include/c++/4.8.1/fstream:625:7: note: std::basic_ofstream<_CharT, _Traits>::basic_ofstream() [with _CharT = char; _Traits = std::char_traits<char>]
+       basic_ofstream(): __ostream_type(), _M_filebuf()
+       ^
+/soft/gcc/4.8.1/include/c++/4.8.1/fstream:625:7: note:   candidate expects 0 arguments, 1 provided
+/soft/gcc/4.8.1/include/c++/4.8.1/fstream:599:11: note: std::basic_ofstream<char>::basic_ofstream(const std::basic_ofstream<char>&)
+     class basic_ofstream : public basic_ostream<_CharT,_Traits>
+           ^
+/soft/gcc/4.8.1/include/c++/4.8.1/fstream:599:11: note:   no known conversion for argument 1 from ‘std::string {aka std::basic_string<char>}’ to ‘const std::basic_ofstream<char>&’
+make: *** [lastRun.o] Error 1

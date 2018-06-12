@@ -47,11 +47,11 @@
 #include <string>
 #include <sstream>
 #include <time.h>
-#include <mpi.h>
+#include </usr/include/openmpi-x86_64/mpi.h>
 
 using namespace std;
 
-const int n_particles_PSO = 20;
+const int n_particles_PSO = 50;
 
 int   n_s;                 // Number of states
 int   n_pCa ;              // Number of simulated pCa or Ca values
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 {
     
     long long startTime = time(NULL);
-    n_SERCA      = 10;         // Max number used to repeat the simulation (n_SERCA)
+    n_SERCA      = 100;         // Max number used to repeat the simulation (n_SERCA)
     max_tsteps    = 1000001;     // Max number of time stepping
     dt            = 1e-7;      // fixed time step
     n_s           = 6 ;         // Number of states
@@ -148,14 +148,14 @@ int main(int argc, char *argv[])
     
     //Ca_cyt_conc_lower       = 1e-8;
     //Ca_cyt_conc_upper       = 1e-4;
-    k_S0_S1_lower           = 0.5*4e7;
-    k_S0_S1_upper           = 1.5*4e7;
-    k_S2_S3_lower           = 0.5*1e8;
-    k_S2_S3_upper           = 1.5*1e8;
-    k_S7_S9_lower           = 0.5*500;
-    k_S7_S9_upper           = 1.5*500;
-    k_S10_S11_lower         = 0.5*6e2;
-    k_S10_S11_upper         = 1.5*6e2;
+    k_S0_S1_lower           = 0.1*4e7;
+    k_S0_S1_upper           = 10*4e7;
+    k_S2_S3_lower           = 0.1*1e8;
+    k_S2_S3_upper           = 10*1e8;
+    k_S7_S9_lower           = 0.1*500;
+    k_S7_S9_upper           = 10*500;
+    k_S10_S11_lower         = 0.1*6e2;
+    k_S10_S11_upper         = 10*6e2;
 //    k_S5_S6_lower           = 06*800;
 //    k_S5_S6_upper           = 1.5*800;
 //    k_S8_S7_lower           = 0.5*1;
