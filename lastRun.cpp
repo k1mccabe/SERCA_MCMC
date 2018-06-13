@@ -686,7 +686,7 @@ void lastRun  		(int    & n_SERCA_Molecules,
     
 
         
-        ss_bound_Ca2[cal] = S1_SS + S2_SS + S10_SS + 2* (S3_SS+ S4_SS + S5_SS + S6_SS + S7_SS + S8_SS + S9_SS);
+        ss_bound_Ca2[cal] = S1_SS_last + S2_SS_last + S10_SS_last + 2* (S3_SS_last + S4_SS_last + S5_SS_last + S6_SS_last + S7_SS_last + S8_SS_last + S9_SS_last);
         
         
         if (ss_bound_Ca2[cal] > boundSS_max_temp2)
