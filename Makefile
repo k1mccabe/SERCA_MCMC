@@ -10,7 +10,7 @@ CXXFLAGS = -Wall -g -I/usr/include/openmpi-x86_64 #for use on amarolab computers
 all: main 
 
 main: main.o get_Residual.o update_States.o lastRun.o
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -lm -o $@ $^
 
 clean:
 	rm *.o $(objects) main
