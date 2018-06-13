@@ -88,7 +88,7 @@ void update_States(int &state, float &dt,
 //--------------------------------------------------------------------------//
 
 
-float get_Residual(int    & n_SERCA,
+float get_Residual(int    & n_SERCA_Molecules,
                    int    & max_tsteps,
                    float  & dt,
                    int    & n_s,

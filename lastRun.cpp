@@ -64,7 +64,7 @@ bool open_closed; //O is open 1 is closed
 //--------------------------------------------------------------------------//
 
 
-void lastRun  		(int    & n_SERCA,
+void lastRun  		(int    & n_SERCA_Molecules,
                      int    & tsteps,
                      float  & dt,
                      int    & n_s,
