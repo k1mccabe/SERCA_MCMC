@@ -56,8 +56,8 @@ using namespace std;
 float last_count_S0, last_count_S1, last_count_S2, last_count_S3, last_count_S4, last_count_S5, last_count_S6, last_count_S7, last_count_S8, last_count_S9, last_count_S10, last_count_S11, last_count_S12;
 float S0_SS_last, S1_SS_last, S2_SS_last, S3_SS_last, S4_SS_last, S5_SS_last, S6_SS_last, S7_SS_last, S8_SS_last, S9_SS_last, S10_SS_last, S11_SS_last, S12_SS_last;
 float S0_temp_last, S1_temp_last, S2_temp_last, S3_temp_last, S4_temp_last, S5_temp_last, S6_temp_last, S7_temp_last, S8_temp_last, S9_temp_last, S10_temp_last, S11_temp_last, S12_temp_last;
-int state;
-bool open_closed; //O is open 1 is closed
+int state_last;
+bool open_closed_last; //O is open 1 is closed
 
 
 
@@ -136,8 +136,8 @@ void lastRun  		(int    & n_SERCA_Molecules,
     //start in state 0 which is SERCA in open, then go through in time and ##
     for (int rr = 0; rr < n_SERCA_Molecules; rr++) //repetition of whole simulation to smooth curve
     {
-        state = 0; // Note: each time we repeat the simulation, we should set all SERCA to state 0 (EiH2)
-        open_closed = 0; // initially, each molecule is in closed conformation (0)
+        state_last = 0; // Note: each time we repeat the simulation, we should set all SERCA to state 0 (EiH2)
+        open_closed_last = 0; // initially, each molecule is in closed conformation (0)
         //---------------------------------------------------------------------------------------------------------------//
         // start time loop i.e., using n-index
         //----------------------------------------------------------------------------------------------------------------//
@@ -162,7 +162,7 @@ void lastRun  		(int    & n_SERCA_Molecules,
             last_count_S12 = 0.0;  // "*E-Pi"
             
             
-            //last_count << "open_closed = " << open_closed << endl;
+            //last_count << "open_closed_last = " << open_closed_last << endl;
             
             //update all RUs for current timestep
             
@@ -171,7 +171,7 @@ void lastRun  		(int    & n_SERCA_Molecules,
             float randNum = 0;
             //
             //-------------------------------------------------------------------------------------------------------------------------
-            current_state = state;     // get current state ID number (e.g. 0 = E , etc)
+            current_state = state_last;     // get current state ID number (e.g. 0 = E , etc)
             //
             //setting index equal from 0 to 12 for each state
             //
@@ -179,130 +179,18 @@ void lastRun  		(int    & n_SERCA_Molecules,
             // generate random numbers
             randNum = static_cast <float> (rand()) / static_cast <float> (RAND_MAX); // Generate a random number between 0 and 1
             //
-            //-----------------------------------------------------------------------------------------------------------------------
-            //
-            // This portion of the code is used to update the states of each RUs based on the Markov step
-            //
-            //-----------------------------------------------------------------------------------------------------------------------
-            // EXAMPLE COMMENT :
-            // if(state  = $STARTING_STATE): Then   $REVERSE_STATE {$REVERSE_STATE_NAME}  <-- $STARTING_STATE_NAME{$GIVEN_NAME} --> S2 {$FORWARD_STATE_NAME}    else stay as GIVEN_NAME
-            //
-            //          [S1]       [S2]             [S3]                 [S4]                 [S5]
-            //          E.Ca <==> E'.Ca  + Ca <==> E'.Ca2 (+ ATP) <==> E'.ATP.Ca2  <==>   E'~P.ADP.Ca2
-            //           /\                                                                  //  \\
-            //           ||                                                                 //    \\
-            //           ||                                                          [S6]  //      \\  [S8]
-            //           ||                                                      *E'-P.ADP.Ca2      E'~P.Ca2 (+ ADP)
-            //           ||                                                                \\      //
-            //           ||                                                        (+ ADP)  \\    //
-            //           \/                                                                  \\  //
-            //    (Pi +) E <==> *E-Pi <==> *E-P + Ca <==> *E-P.Ca + Ca <==> *E-P.Ca2 <==>  *E'-P.Ca2
-            //          [S0]    [S12]      [S11]           [S10]              [S9]            [S7]
-            //
-            //----------------------------------------------------------------------------------------------------------------------
-            //
-            //EXAMPLE CODE FOR TWO STATE DECAY:
-            //
-            //           if(current_state == $STARTING_STATE_INDEX)
-            //            {
-            //                p1 =       ($k.forward                  * dt); // (first order)        unimolecular forward transition to $FORWARD_STATE
-            //                p2 = p1 +  ($k.reverse * $species_concentration * dt); // (pseudo first-order) bimolecular backward transition to $REVERSE_STATE
-            //
-            //                if(randNum < p1)  // If your random number is leSS_last than first probability , then transition to next state
-            //                {
-            //                    state = $FORWARD_STATE_INDEX;   //  transition to $FORWARD_STATE_NAME
-            //                }
-            //                else if(randNum < p2) //If the random number is leSS_last than second probability , then transition to previous state
-            //                {
-            //                    state = $REVERSE_STATE_INDEX; //    transition to $REVERSE_STATE_NAME
-            //                }
-            //            } //if it is not greater than either probability then stay in the same state
-            //
-            //EXAMPLE CODE FOR THREE STATE DECAY
-            //--------------------------------------------------------------------------------------------------------
-            // if(state  = 2): Then                                   $REVERSE_STATE_NAME-1
-            //                                                                 /\
-            //                                                                 ||
-            //                    $REVERSE_STATE_NAME-0 + $species <-- [$STARTING_STATE_NAME] --> $FORWARD_STATE_NAME     else stay as $STARTING_STATE_NAME]
-            //--------------------------------------------------------------------------------------------------------
-            //            if(current_state == 2)
-            //            {
-            //                p1 =        ($k.forward                            * dt); // (first order)        unimolecular forward  transition to $FORWARD_STATE_NAME   $FORWARD_STATE_INDEX
-            //                p2 = p1 +   ($k.reverse-0                          * dt); // (pseudo first-order) unimolecular backward transition to $REVERSE_STATE_NAME-0 $REVERSE_STATE_INDEX-0
-            //                p3 = p2 +   ($k.reverse-1 * $species_concentration * dt); // (first order)        bimolecular forward   transition to $FORWARD_STATE_NAME-1   $FORWARD_STATE_INDEX-1
-            //              if(randNum < p1)
-            //              {
-            //                    state = FORWARD_STATE_INDEX;   //  transition to $FORWARD_STATE_NAME
-            //                }
-            //                else if(randNum < p2)
-            //                {
-            //                    state = REVERSE_STATE_INDEX-0; //transition to $REVERSE_STATE_NAME-0
-            //                }
-            //                else if(randNum < p3)
-            //                {
-            //                    state = REVERSE_STATE_INDEX-1; //transition to $REVERSE_STATE_NAME-1
-            //               }
-            //            }
-            //
-            //EXAMPLE CODE FOR ONE STATE DECAY or "DEAD-END STATE" outside of the loop
-            //---------------------------------------------------------------------------------------------------------
-            // if(state  = 13): Then       [$STARTING_STATE_NAME]          else stay as $FORWARD_STATE_NAME
-            //                                      \/
-            //                             $FORWARD_STATE_NAME
-            //---------------------------------------------------------------------------------------------------------
-            //if(current_state == 13)
-            //            {
-            //                p1 =        ($k.forward * dt); // transition to $FORWARD_STATE_NAME $
-            //    SPH         p2 = 1 - p1
-            //                if(randNum < p1)
-            //                {
-            //                    state = $FORWARD_STATE_INDEX;  //transition to $FORWARD_STATE_NAME $FORWARD_STATE_INDEX
-            //                }
-            //    SPH         else if(randNum < p2)
-            //    SPH           {
-            //    SPH             state = $REVERSE_STATE_INDEX; // transition to $REVERSE_STATE_NAME $REVERSE_STATE_INDEX
-            //               }
-            //            }
-            //    SPH for KJM       How does it come out of this state if not with the new lines that I put in?
-            //      4/10/18             I think thats why all the molecules were ending up in the dead end state.
-            //                              Not sure though..
-            //
-            //_________________________________________________________________________________________________
-            //
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            //_________________________________________________________________________________________________
-            //
-            //
-            //-------------------------------------------------------------------------------------------------
-            //
-            //                      SERCA MONTE CARLO MARKOV CHAIN LOOP INTEGRATION STARTS HERE:
-            //
-            //-------------------------------------------------------------------------------------------------
-            //
-            // if(state  = 0): Then   S12 [*E-Pi]  <-- S0 {E} --> S1 [E.Ca]                 else stay as E
-            //          [S1]
-            //          E.Ca
-            //           /\
-            //           ||
-            //           \/
-            //    (Pi +) E <==> *E-Pi
-            //          [S0]    [S12]
-            //
-            //__________________________________________________________________________________________________
-            //
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            //__________________________________________________________________________________________________
+            //--------------------------------------------------------------------------------__________________________________________________________________________________________________
             if(current_state == 0)
             {
                 p1 =       (k_S0_S1  * Ca_cyt_conc * dt); // (pseudo first-order) bimolecular  forward transition to  E.Ca          [S1]
                 p2 = p1 +  (k_S0_S12 * Pi_conc     * dt); // (pseudo first-order) bimolecular backward transition to *E-Pi          [S12]
                 if(randNum < p1)  //If the random number is leSS_last than first probability, then transition to the next state
                 {
-                    state = 1;   // forward transition to  E.Ca [S1]
+                    state_last = 1;   // forward transition to  E.Ca [S1]
                 }
                 else if(randNum < p2) //If the random number is leSS_last than second probability , then transition to the previous state
                 {
-                    state = 12; // backward transition to *E-Pi [S12]
+                    state_last = 12; // backward transition to *E-Pi [S12]
                 }
             } //if it is not greater than either probability then stay in the same state
             //
@@ -325,11 +213,11 @@ void lastRun  		(int    & n_SERCA_Molecules,
                 p2 = p1 +  (k_S1_S0 * Pi_conc * dt); // (pseudo first-order) bimolecular backward transition back to E              [S0]
                 if(randNum < p1)  //f your random number is leSS_last than first probability , then transition to next state
                 {
-                    state = 2;   // forward transition to  E'.Ca    [S2]
+                    state_last = 2;   // forward transition to  E'.Ca    [S2]
                 }
                 else if(randNum < p2) //If the random number is leSS_last than second probability , then transition to the previous state
                 {
-                    state = 0;
+                    state_last = 0;
                 }
             }
             
@@ -350,11 +238,11 @@ void lastRun  		(int    & n_SERCA_Molecules,
                 p2 = p1 +  (k_S2_S1 * Pi_conc * dt); // (first-order)        unimolecular backward transition to E.Ca               [S0]
                 if(randNum < p1) //If the random number is leSS_last than first probability , then transition to next state              [S3]
                 {
-                    state = 3;   // forward transition to E'.Ca2    [S3]
+                    state_last = 3;   // forward transition to E'.Ca2    [S3]
                 }
                 else if(randNum < p2)//If the random number is leSS_last than second probability , then transition to previous state [S0]
                 {
-                    state = 1; // backward transition to  E'.Ca     [S1]
+                    state_last = 1; // backward transition to  E'.Ca     [S1]
                 }
             } //if it is not greater than either probability  then stay in the same state
             //
@@ -377,11 +265,11 @@ void lastRun  		(int    & n_SERCA_Molecules,
                 p2 = p1 +  (k_S3_S2 * dt);                  // (first order)        unimolecular backward transition to E'.Ca      [S2]
                 if(randNum < p1) //If the random number is leSS_last than first probability , then transition to next state
                 {
-                    state = 4;   // forward transition to E'.ATP.Ca2 [S4]
+                    state_last = 4;   // forward transition to E'.ATP.Ca2 [S4]
                 }
                 else if(randNum < p2)//If the random number is leSS_last than second probability , then transition to previous state
                 {
-                    state = 2;  // backward transition to E'.Ca      [S2]
+                    state_last = 2;  // backward transition to E'.Ca      [S2]
                 }
             } //if it is not greater than either probability then stay in the same state
             
@@ -403,11 +291,11 @@ void lastRun  		(int    & n_SERCA_Molecules,
                 p2 = p1 +  (k_S4_S3              * dt);     // (first order)        unimolecular backward transition to E'.Ca2       [S3]
                 if(randNum < p1) //If the random number is leSS_last than first probability , then transition to next state
                 {
-                    state = 5;   // forward transition to E'~P.ADP.Ca2 [S5]
+                    state_last = 5;   // forward transition to E'~P.ADP.Ca2 [S5]
                 }
                 else if(randNum < p2)//If the random number is leSS_last than second probability , then transition to previous state
                 {
-                    state = 3;  // backward transition to E'.Ca2       [S3]
+                    state_last = 3;  // backward transition to E'.Ca2       [S3]
                 }
             } //if it is not greater than either probability  then stay in the same state
             
@@ -435,15 +323,15 @@ void lastRun  		(int    & n_SERCA_Molecules,
                 p3 = p2 +   (k_S5_S8 * dt); // (first order)        unimolecular  forward transition to  E'~P.Ca2                   [S8]
                 if(randNum < p1)
                 {
-                    state = 6;   //forward transition to *E'-P.ADP.Ca2 [S6]
+                    state_last = 6;   //forward transition to *E'-P.ADP.Ca2 [S6]
                 }
                 else if(randNum < p2)
                 {
-                    state = 8;  //forward transition to  E'~P.Ca2      [S8]
+                    state_last = 8;  //forward transition to  E'~P.Ca2      [S8]
                 }
                 else if(randNum < p3)
                 {
-                    state = 4; //reverse transition to   E'.ATP.Ca2    [S4]
+                    state_last = 4; //reverse transition to   E'.ATP.Ca2    [S4]
                 }
             }
             //-----------------------------------------------------------------------------------------------------------------------
@@ -471,11 +359,11 @@ void lastRun  		(int    & n_SERCA_Molecules,
                 p2 = p1 +  (k_S6_S5 * dt);     // (first order)        unimolecular backward transition to  E'~P.ADP.Ca2             [S5]
                 if(randNum < p1) //If the random number is leSS_last than first probability , then transition to next state
                 {
-                    state = 7;   // forward transition to *E'-P.Ca2    [S7]
+                    state_last = 7;   // forward transition to *E'-P.Ca2    [S7]
                 }
                 else if(randNum < p2)//If the random number is leSS_last than second probability , then transition to previous state
                 {
-                    state = 5;  // backward transition to E'~P.ADP.Ca2 [S5]
+                    state_last = 5;  // backward transition to E'~P.ADP.Ca2 [S5]
                 }
             } //if it is not greater than either probability  then stay in the same state
             
@@ -503,15 +391,15 @@ void lastRun  		(int    & n_SERCA_Molecules,
                 p3 = p2 + (k_S7_S8              * dt); // (first order)     unimolecular backward transition to  E'~P.Ca2           [S8]
                 if(randNum < p1)
                 {
-                    state = 9; //forward transition to *E-P.Ca2         [S9]
+                    state_last = 9; //forward transition to *E-P.Ca2         [S9]
                 }
                 else if(randNum < p2)
                 {
-                    state = 6; //reverse transition to *E'-P.ADP.Ca2    [S6]
+                    state_last = 6; //reverse transition to *E'-P.ADP.Ca2    [S6]
                 }
                 else if(randNum < p3)
                 {
-                    state = 8; //reverse transition to  E'~P.Ca2        [S8]
+                    state_last = 8; //reverse transition to  E'~P.Ca2        [S8]
                 }
             }
             //-----------------------------------------------------------------------------------------------------------------------
@@ -540,11 +428,11 @@ void lastRun  		(int    & n_SERCA_Molecules,
                 p2 = p1 +  (k_S8_S5  * dt);     // (first order) unimolecular backward transition to E'~P.ADP.Ca2                   [S5]
                 if(randNum < p1) //If the random number is leSS_last than first probability , then transition to next state
                 {
-                    state = 7;   // forward transition to *E'-P.Ca2      [S7]
+                    state_last = 7;   // forward transition to *E'-P.Ca2      [S7]
                 }
                 else if(randNum < p2)//If the random number is leSS_last than second probability , then transition to previous state
                 {
-                    state = 5;  // backward transition to  E'~P.ADP.Ca2  [S5]
+                    state_last = 5;  // backward transition to  E'~P.ADP.Ca2  [S5]
                 }
             } //if it is not greater than either probability  then stay in the same state
             
@@ -564,11 +452,11 @@ void lastRun  		(int    & n_SERCA_Molecules,
                 p2 = p1 +  (k_S9_S7               * dt);     // (first order)        unimolecular backward transition to *E'-P.Ca2  [S7]
                 if(randNum < p1) //If the random number is leSS_last than first probability , then transition to next state
                 {
-                    state = 10;   // forward transition to *E-P.Ca      [S10]
+                    state_last = 10;   // forward transition to *E-P.Ca      [S10]
                 }
                 else if(randNum < p2)//If the random number is leSS_last than second probability , then transition to previous state
                 {
-                    state = 7;   // backward transition to *E'-P.Ca2    [S7]
+                    state_last = 7;   // backward transition to *E'-P.Ca2    [S7]
                 }
             } //if it is not greater than either probability  then stay in the same state
             
@@ -589,11 +477,11 @@ void lastRun  		(int    & n_SERCA_Molecules,
                 p2 =       (k_S10_S9 * Ca_sr_conc * dt);     // (pseudo first-order) bimolecular backward transition to *E-P.Ca2    [S9]
                 if(randNum < p1) //If the random number is leSS_last than first probability , then transition to next state
                 {
-                    state = 11;   // forward transition to *E-P         [S11]
+                    state_last = 11;   // forward transition to *E-P         [S11]
                 }
                 else if(randNum < p2)//If the random number is leSS_last than second probability , then transition to previous state
                 {
-                    state = 9; // backward transition to   *E-P.Ca2     [S9]
+                    state_last = 9; // backward transition to   *E-P.Ca2     [S9]
                 }
             } //if it is not greater than either probability  then stay in the same state
             
@@ -614,11 +502,11 @@ void lastRun  		(int    & n_SERCA_Molecules,
                 p2 =       (k_S11_S10 * Ca_sr_conc * dt);    // (pseudo first-order) bimolecular backward transition to *E-P.Ca     [S10]
                 if(randNum < p1) //If the random number is leSS_last than first probability , then transition to next state
                 {
-                    state = 12;   // forward transition to *E-Pi        [S12]
+                    state_last = 12;   // forward transition to *E-Pi        [S12]
                 }
                 else if(randNum < p2)//If the random number is leSS_last than second probability , then transition to previous state
                 {
-                    state = 10; // backward transition to  *E-P.Ca      [S10]
+                    state_last = 10; // backward transition to  *E-P.Ca      [S10]
                 }
             } //if it is not greater than either probability  then stay in the same state
             
@@ -638,11 +526,11 @@ void lastRun  		(int    & n_SERCA_Molecules,
                 p2 =       (k_S12_S11 * dt);    // (pseudo first-order) bimolecular backward transition to *E-P                     [S11]
                 if(randNum < p1) //If the random number is leSS_last than first probability , then transition to next state
                 {
-                    state = 0;   // forward transition to  E            [S0]
+                    state_last = 0;   // forward transition to  E            [S0]
                 }
                 else if(randNum < p2)//If the random number is leSS_last than second probability , then transition to previous state
                 {
-                    state = 11; // backward transition to *E-P          [S11]
+                    state_last = 11; // backward transition to *E-P          [S11]
                 }
             } //if it is not greater than either probability  then stay in the same state
             
@@ -661,55 +549,55 @@ void lastRun  		(int    & n_SERCA_Molecules,
             
             if (output_last_count == save_jump)
             {
-                if      (state == 0)
+                if      (state_last == 0)
                 {
                     S0[n/save_jump]   = S0[n/save_jump] + 1.0;
                 }
-                else if(state ==1)
+                else if(state_last ==1)
                 {
                     S1[n/save_jump]   = S1[n/save_jump] + 1.0;
                 }
-                else if(state ==2)
+                else if(state_last ==2)
                 {
                     S2[n/save_jump]   = S2[n/save_jump] + 1.0;
                 }
-                else if(state ==3)
+                else if(state_last ==3)
                 {
                     S3[n/save_jump]   = S3[n/save_jump] + 1.0;
                 }
-                else if(state ==4)
+                else if(state_last ==4)
                 {
                     S4[n/save_jump]   = S4[n/save_jump] + 1.0;
                 }
-                else if(state ==5)
+                else if(state_last ==5)
                 {
                     S5[n/save_jump]   = S5[n/save_jump] + 1.0;
                 }
-                else if(state ==6)
+                else if(state_last ==6)
                 {
                     S6[n/save_jump]   = S6[n/save_jump] + 1.0;
                 }
-                else if(state ==7)
+                else if(state_last ==7)
                 {
                     S7[n/save_jump]   = S7[n/save_jump] + 1.0;
                 }
-                else if(state ==8)
+                else if(state_last ==8)
                 {
                     S8[n/save_jump]   = S8[n/save_jump] + 1.0;
                 }
-                else if(state ==9)
+                else if(state_last ==9)
                 {
                     S9[n/save_jump]   = S9[n/save_jump] + 1.0;
                 }
-                else if(state ==10)
+                else if(state_last ==10)
                 {
                     S10[n/save_jump]  = S10[n/save_jump] + 1.0;
                 }
-                else if(state ==11)
+                else if(state_last ==11)
                 {
                     S11[n/save_jump]  = S11[n/save_jump] + 1.0;
                 }
-                else if(state ==12)
+                else if(state_last ==12)
                 {
                     S12[n/save_jump]  = S12[n/save_jump] + 1.0;
                 }
