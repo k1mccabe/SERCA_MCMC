@@ -63,7 +63,7 @@ bool open_closed_last; //O is open 1 is closed
 
 //--------------------------------------------------------------------------//
 
-
+/*
 void lastRun  		(int    & n_SERCA_Molecules,
                      int    & tsteps,
                      float  & dt,
@@ -74,7 +74,7 @@ void lastRun  		(int    & n_SERCA_Molecules,
                      float  & k_S7_S9,
                      float  & k_S10_S11,float  & k_S1_S0, float  & k_S1_S2,  float  & k_S2_S1, float  & k_S3_S2, float  & k_S3_S4,  float  & k_S4_S3, float  & k_S4_S5, float  & k_S5_S4, float  & k_S5_S6,  float  & k_S6_S5, float  & k_S6_S7, float  & k_S7_S6, float  & k_S5_S8,  float  & k_S8_S5, float  & k_S8_S7, float  & k_S7_S8,  float  & k_S9_S7, float  & k_S9_S10, float  & k_S10_S9,float  & k_S11_S10, float  & k_S11_S12,float  & k_S12_S11,float  & k_S12_S0,float  & k_S0_S12,float  & Ca_cyt_conc,float  & Ca_sr_conc,float  & MgATP_conc,float  & MgADP_conc,float  & Pi_conc
                      )
-
+*/
 {
    
    int save_jump = 100; //how many output values should we keep? To minimize memory usage, we will keep every 10 timepoints.
