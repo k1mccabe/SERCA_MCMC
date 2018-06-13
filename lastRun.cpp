@@ -58,7 +58,7 @@ float S0_SS_last, S1_SS_last, S2_SS_last, S3_SS_last, S4_SS_last, S5_SS_last, S6
 float S0_temp_last, S1_temp_last, S2_temp_last, S3_temp_last, S4_temp_last, S5_temp_last, S6_temp_last, S7_temp_last, S8_temp_last, S9_temp_last, S10_temp_last, S11_temp_last, S12_temp_last;
 int state_last;
 bool open_closed_last; //O is open 1 is closed
-
+float Ca_cyt_conc_last;
 
 
 //--------------------------------------------------------------------------//
@@ -79,7 +79,30 @@ void lastRun  		(int    & n_SERCA_Molecules,
    
    int save_jump = 100; //how many output values should we keep? To minimize memory usage, we will keep every 10 timepoints.
     
-
+    float calConc_Exp[16] = {   1.13465021562703E-07,
+        1.48013728928924E-07,
+        1.87545047401295E-07,
+        2.37746427649773E-07,
+        2.86177839072689E-07,
+        3.34581558654772E-07,
+        3.82579504194903E-07,
+        4.40880103529033E-07,
+        5.15498018194447E-07,
+        6.0268752205741E-07,
+        7.04360511231999E-07,
+        8.41433890215616E-07,
+        9.8310521528177E-07,
+        1.209326027507E-06,
+        1.46539261994034E-06,
+        1.92506766806173E-06};
+    float boundSS_max_temp2 = 0; // this will figure out the highest bound Ca for our loop
+    float ss_bound_Ca2[n_pCa];
+    float norm_ss_bound_Ca22[n_pCa];
+    
+    
+    for (int i = 0; i < n_pCa; i++)
+    {
+        Ca_cyt_conc_last       = calConc_Exp[i];  // needs citation
     
     //-----------------------
     // SIMULATION FOR SS_last CURVE
@@ -183,7 +206,7 @@ void lastRun  		(int    & n_SERCA_Molecules,
             //--------------------------------------------------------------------------------__________________________________________________________________________________________________
             if(current_state == 0)
             {
-                p1 =       (k_S0_S1  * Ca_cyt_conc * dt); // (pseudo first-order) bimolecular  forward transition to  E.Ca          [S1]
+                p1 =       (k_S0_S1  * Ca_cyt_conc_last * dt); // (pseudo first-order) bimolecular  forward transition to  E.Ca          [S1]
                 p2 = p1 +  (k_S0_S12 * Pi_conc     * dt); // (pseudo first-order) bimolecular backward transition to *E-Pi          [S12]
                 if(randNum < p1)  //If the random number is leSS_last than first probability, then transition to the next state
                 {
@@ -659,46 +682,40 @@ void lastRun  		(int    & n_SERCA_Molecules,
     //----------------------------------------------------------
     // Write time-state data into a text file so we can plot it
     //----------------------------------------------------------
-    std::string filename = "Time_Data_gbest.csv";
+
+    
+
+        
+        ss_bound_Ca2[cal] = S1_SS + S2_SS + S10_SS + 2* (S3_SS+ S4_SS + S5_SS + S6_SS + S7_SS + S8_SS + S9_SS);
+        
+        
+        if (ss_bound_Ca2[cal] > boundSS_max_temp2)
+        {
+            boundSS_max_temp2 = ss_bound_Ca2[cal];
+        }
+    }
+    
+    for (int i2 = 0; i2 < n_pCa; i2++)
+    {
+        norm_ss_bound_Ca22[cal2] = ss_bound_Ca2[i2] / boundSS_max_temp2;
+    }
+    
+    // write steady state info in a file
+    std::string filename = "best_residual_SSpCa_Curve.csv";
     
     ofstream time_states_out(filename.c_str()); //opening an output stream for file test.txt
     if(time_states_out.is_open()) //checking whether file could be opened or not.
     {
         // create headers for file
-        time_states_out << "Time,S0,S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12" << endl; // write the average force
-        for (int n = 0; n < (tsteps-1)/save_jump; n++)  // time marching
+        time_states_out << "pCa,Bound_Ca" << endl; // write the average force
+        for (int m = 0; m < pCa; m++)  // time marching
         {
             
-            Time [n] = (n*save_jump*dt);
-            time_states_out << Time [n] << "," << S0[n] << "," << S1[n] << "," << S2[n] << "," << S3[n] << "," << S4[n] << "," << S5[n] << "," << S6[n] << "," << S7[n] << "," << S8[n] << "," << S9[n] << "," << S10[n] << "," << S11[n] << "," << S12[n] << endl; // write the average force
+            time_states_out << calConc_Exp[m] << "," << ss_bound_Ca2[m] << endl; // write the average force
         }
         cout << "Array data succeSS_lastfully saved into the file " << filename << endl;
     }
     
-    //----------------------------------------------------------
-    // Write SS_last data into a text file
-    //----------------------------------------------------------
-    std::string filename2 = "SS_last_Data_gbest.csv";
-    
-    ofstream SS_last_out(filename2.c_str()); //opening an output stream for file test.txt
-    if(SS_last_out.is_open()) //checking whether file could be opened or not.
-    {
-        
-        SS_last_out << "S0,"   << S0_SS_last     << endl;
-        SS_last_out << "S1,"   << S1_SS_last     << endl;
-        SS_last_out << "S2,"   << S2_SS_last     << endl;
-        SS_last_out << "S3,"   << S3_SS_last     << endl;
-        SS_last_out << "S4,"   << S4_SS_last     << endl;
-        SS_last_out << "S5,"   << S5_SS_last     << endl;
-        SS_last_out << "S6,"   << S6_SS_last     << endl;
-        SS_last_out << "S7,"   << S7_SS_last     << endl;
-        SS_last_out << "S8,"   << S8_SS_last     << endl;
-        SS_last_out << "S9,"   << S9_SS_last     << endl;
-        SS_last_out << "S10,"  << S10_SS_last    << endl;
-        SS_last_out << "S11,"  << S11_SS_last    << endl;
-        SS_last_out << "S12,"  << S12_SS_last    << endl;
-        cout << "Array data succeSS_lastfully saved into the file " << filename2 << endl;
-    }
     return;
     
 } // end main function
