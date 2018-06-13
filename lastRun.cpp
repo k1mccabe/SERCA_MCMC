@@ -97,7 +97,7 @@ void lastRun  		(int    & n_SERCA_Molecules,
         1.92506766806173E-06};
     float boundSS_max_temp2 = 0; // this will figure out the highest bound Ca for our loop
     float ss_bound_Ca2[n_pCa];
-    float norm_ss_bound_Ca22[n_pCa];
+    float norm_ss_bound_Ca2[n_pCa];
     
     
     for (int i = 0; i < n_pCa; i++)
@@ -109,7 +109,6 @@ void lastRun  		(int    & n_SERCA_Molecules,
     //-----------------------
     //Creating a vector named tstapes (list of elements of States S0-S12) defining the occupancy of each state according to time at each time step
     //CHANGED - this was taking up too much memory. Now only saving every 10 timesteps.
-    float Time[(tsteps-1)/10];
     float S0[(tsteps-1)/10];         // used to find how many S0 molecules in each iteration ("E")
     float S1[(tsteps-1)/10];         //  "E.Ca"
     float S2[(tsteps-1)/10];         //  "E'.Ca"
@@ -697,7 +696,7 @@ void lastRun  		(int    & n_SERCA_Molecules,
     
     for (int i2 = 0; i2 < n_pCa; i2++)
     {
-        norm_ss_bound_Ca22[i2] = ss_bound_Ca2[i2] / boundSS_max_temp2;
+        norm_ss_bound_Ca2[i2] = ss_bound_Ca2[i2] / boundSS_max_temp2;
     }
     
     // write steady state info in a file
