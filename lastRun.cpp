@@ -686,18 +686,18 @@ void lastRun  		(int    & n_SERCA_Molecules,
     
 
         
-        ss_bound_Ca2[cal] = S1_SS_last + S2_SS_last + S10_SS_last + 2* (S3_SS_last + S4_SS_last + S5_SS_last + S6_SS_last + S7_SS_last + S8_SS_last + S9_SS_last);
+        ss_bound_Ca2[i] = S1_SS_last + S2_SS_last + S10_SS_last + 2* (S3_SS_last + S4_SS_last + S5_SS_last + S6_SS_last + S7_SS_last + S8_SS_last + S9_SS_last);
         
         
-        if (ss_bound_Ca2[cal] > boundSS_max_temp2)
+        if (ss_bound_Ca2[i] > boundSS_max_temp2)
         {
-            boundSS_max_temp2 = ss_bound_Ca2[cal];
+            boundSS_max_temp2 = ss_bound_Ca2[i];
         }
     }
     
     for (int i2 = 0; i2 < n_pCa; i2++)
     {
-        norm_ss_bound_Ca22[cal2] = ss_bound_Ca2[i2] / boundSS_max_temp2;
+        norm_ss_bound_Ca22[i2] = ss_bound_Ca2[i2] / boundSS_max_temp2;
     }
     
     // write steady state info in a file
@@ -708,7 +708,7 @@ void lastRun  		(int    & n_SERCA_Molecules,
     {
         // create headers for file
         time_states_out << "pCa,Bound_Ca" << endl; // write the average force
-        for (int m = 0; m < pCa; m++)  // time marching
+        for (int m = 0; m < n_pCa; m++)  // time marching
         {
             
             time_states_out << calConc_Exp[m] << "," << ss_bound_Ca2[m] << endl; // write the average force
