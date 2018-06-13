@@ -1,4 +1,4 @@
-void lastRun  		(int    & n_SERCA,
+void lastRun  		(int    & n_SERCA_Molecules,
                      int    & max_tsteps,
                      float  & dt,
                      int    & n_s,

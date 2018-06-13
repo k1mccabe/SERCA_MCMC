@@ -57,7 +57,7 @@ const int n_particles_PSO = 50;
 
 int   n_s;                 // Number of states
 int   n_pCa ;              // Number of simulated pCa or Ca values
-int   n_SERCA;            // Max number used to repeat the simulation
+int   n_SERCA_Molecules;            // Max number used to repeat the simulation
 int   max_tsteps;          // Max number of time stepping
 float dt;                 // fixed time step
 float residual_cost_func [n_particles_PSO]; // to track the residual between numerics and experiments
@@ -118,7 +118,7 @@ float  Ca_sr_conc, MgATP_conc, MgADP_conc, Pi_conc;
 // Function to be called
 //--------------------------
 /*
-float get_Residual  (int    & n_SERCA,
+float get_Residual  (int    & n_SERCA_Molecules,
                      int    & max_tsteps,
                      float  & dt,
                      int    & n_s,
@@ -128,7 +128,7 @@ float get_Residual  (int    & n_SERCA,
                      float  & k_S7_S9,
                      float  & k_S10_S11,float  & k_S1_S0, float  & k_S1_S2,  float  & k_S2_S1, float  & k_S3_S2, float  & k_S3_S4,  float  & k_S4_S3, float  & k_S4_S5, float  & k_S5_S4, float  & k_S5_S6,  float  & k_S6_S5, float  & k_S6_S7, float  & k_S7_S6, float  & k_S5_S8,  float  & k_S8_S5, float  & k_S8_S7, float  & k_S7_S8,  float  & k_S9_S7, float  & k_S9_S10, float  & k_S10_S9,float  & k_S11_S10, float  & k_S11_S12,float  & k_S12_S11,float  & k_S12_S0,float  & k_S0_S12,float  & Ca_sr_conc,float  & MgATP_conc,float  & MgADP_conc,float  & Pi_conc
                      );
-void lastRun  		(int    & n_SERCA,
+void lastRun  		(int    & n_SERCA_Molecules,
                      int    & max_tsteps,
                      float  & dt,
                      int    & n_s,
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 {
     
     long long startTime = time(NULL);
-    n_SERCA      = 100;         // Max number used to repeat the simulation (n_SERCA)
+    n_SERCA_Molecules      = 100;         // Max number used to repeat the simulation (n_SERCA)
     max_tsteps    = 1000001;     // Max number of time stepping
     dt            = 1e-7;      // fixed time step
     n_s           = 6 ;         // Number of states
@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
         // NB: this function implicitly calls the other functions.
         //-----------------------------------------------------------------------------------------
         
-        residual_cost_func[i] = get_Residual  (n_SERCA,
+        residual_cost_func[i] = get_Residual  (n_SERCA_Molecules,
                                                max_tsteps,
                                                dt,
                                                n_s,
@@ -440,7 +440,7 @@ int main(int argc, char *argv[])
             //-----------------------------------------------------
             // residual update using the new particles/parameters
             //----------------------------------------------------
-            residual_cost_func[i] = get_Residual  (  n_SERCA,
+            residual_cost_func[i] = get_Residual  (n_SERCA_Molecules,
                                                    max_tsteps,
                                                    dt,
                                                    n_s,
@@ -530,7 +530,7 @@ int main(int argc, char *argv[])
 //    cout << "\"k_S0_S12_pbest\","  << k_S0_S12_pbest << endl;
     cout << "Total Optimization Runtime: " << (time(NULL)-startTime) << " second(s)" << endl;
 
-    lastRun(n_SERCA,
+    lastRun(n_SERCA_Molecules,
     		max_tsteps,
     		dt,
     		n_s,
