@@ -697,6 +697,7 @@ void lastRun  		(int    & n_SERCA_Molecules,
     for (int i2 = 0; i2 < n_pCa; i2++)
     {
         norm_ss_bound_Ca2[i2] = ss_bound_Ca2[i2] / boundSS_max_temp2;
+	cout << "Using norm_ss_bound_Ca2" << endl;  
     }
     
     // write steady state info in a file
@@ -710,7 +711,7 @@ void lastRun  		(int    & n_SERCA_Molecules,
         for (int m = 0; m < n_pCa; m++)  // time marching
         {
             
-            time_states_out << calConc_Exp[m] << "," << ss_bound_Ca2[m] << endl; // write the average force
+            time_states_out << calConc_Exp[m] << "," << norm_ss_bound_Ca2[m] << endl; // write the average force
         }
         cout << "Array data succeSS_lastfully saved into the file " << filename << endl;
     }
