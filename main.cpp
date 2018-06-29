@@ -53,7 +53,7 @@
 
 using namespace std;
 
-const int n_particles_PSO = 50;
+const int n_particles_PSO = 4;
 
 int   n_s;                 // Number of states
 int   n_pCa ;              // Number of simulated pCa or Ca values
@@ -259,10 +259,10 @@ int main(int argc, char *argv[])
         //-----------
         cout << " Particle " << i+1 << " initialized. " << std::endl;
         //X_Ca_cyt_conc_PSO[i] = Ca_cyt_conc_lower  + (Ca_cyt_conc_upper - Ca_cyt_conc_lower) * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        X_k_S0_S1_PSO_local    [i] = k_S0_S1_lower      + (k_S0_S1_upper    - k_S0_S1_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        X_k_S2_S3_PSO_local    [i] = k_S2_S3_lower      + (k_S2_S3_upper    - k_S2_S3_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        X_k_S7_S9_PSO_local    [i] = k_S7_S9_lower      + (k_S7_S9_upper    - k_S7_S9_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        X_k_S10_S11_PSO_local  [i] = k_S10_S11_lower    + (k_S10_S11_upper  - k_S10_S11_lower)   * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	X_k_S0_S1_PSO_local    [i] = 4e7; //k_S0_S1_lower      + (k_S0_S1_upper    - k_S0_S1_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);   //original Inesi value 4e7
+        X_k_S2_S3_PSO_local    [i] = 1e8; //k_S2_S3_lower      + (k_S2_S3_upper    - k_S2_S3_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);   //original Inesi value 1e8
+        X_k_S7_S9_PSO_local    [i] = 500; //k_S7_S9_lower      + (k_S7_S9_upper    - k_S7_S9_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);   //original Inesi value 500
+        X_k_S10_S11_PSO_local  [i] = 6e2; //k_S10_S11_lower    + (k_S10_S11_upper  - k_S10_S11_lower)   * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);    //original Inesi value 200
     
 //        X_k_S5_S6_PSO_local    [i] = k_S5_S6_lower      + (k_S5_S6_upper    - k_S5_S6_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 //        X_k_S8_S7_PSO_local    [i] = k_S8_S7_lower      + (k_S8_S7_upper    - k_S8_S7_lower)     * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
@@ -333,12 +333,14 @@ int main(int argc, char *argv[])
     // Find Min of Residual (i.e., global best)
     //------------------------------------------
     float Res_gbest = residual_cost_func [0];
+    cout << " TESTING RES_GBEST: " << Res_gbest << endl;
     int i_Res_gbest = 0;
     for (int i = start; i < end; i++)
     {
         if (residual_cost_func [i] < Res_gbest)
         {
             Res_gbest    = residual_cost_func [i];
+            cout << " TESTING res_gbest: " << Res_gbest << endl;
             i_Res_gbest  = i;
         }
         
@@ -353,6 +355,7 @@ int main(int argc, char *argv[])
     k_S2_S3_gbest     = X_k_S2_S3_PSO[i_Res_gbest];
     k_S7_S9_gbest     = X_k_S7_S9_PSO[i_Res_gbest];
     k_S10_S11_gbest   = X_k_S10_S11_PSO[i_Res_gbest];
+    cout << " TESTING GBEST: " << k_S0_S1_gbest << endl;
 //    k_S5_S6_gbest     = X_k_S5_S6_PSO[i_Res_gbest];
 //    k_S8_S7_gbest     = X_k_S8_S7_PSO[i_Res_gbest];
 //    k_S0_S12_gbest    = X_k_S0_S12_PSO[i_Res_gbest];
@@ -380,8 +383,10 @@ int main(int argc, char *argv[])
     //
     //
     //------------------ --------------------------------------------------------------
-    const int max_iter = 20;
-    float w_max, w_min, dw, w;
+    const int max_iter = 0;
+if (max_iter != 0)
+{     
+float w_max, w_min, dw, w;
     float c1, c2;
     w_max = 1.0;
     w_min = 0.3;
@@ -518,7 +523,7 @@ int main(int argc, char *argv[])
         
         
     }// end swarm iteration
-  
+ } 
   MPI_Finalize(); // end parallel process
     cout << "\"Res_gbest\","       << Res_gbest << endl;
     cout << "\"k_S0_S1_gbest\","   << k_S0_S1_gbest << endl;
