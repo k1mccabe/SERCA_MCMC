@@ -410,7 +410,7 @@ float get_Residual(int    & n_SERCA_Molecules,
         }
         */
         
-        ss_bound_Ca[cal] = S1_SS + S2_SS + S10_SS + 2* (S3_SS+ S4_SS + S5_SS + S6_SS + S7_SS + S8_SS + S9_SS);
+        ss_bound_Ca[cal] = S1_SS + S2_SS + S10_SS + S9_SS + 2* (S3_SS+ S4_SS + S5_SS + S6_SS + S7_SS + S8_SS);
     
     
             if (ss_bound_Ca[cal] > boundSS_max_temp)
