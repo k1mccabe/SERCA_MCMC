@@ -1,4 +1,5 @@
-/*-----------------------------------------------------------------------------------------------------
+/*
+//-----------------------------------------------------------------------------------------------------
 //                     University of California, San Diego
 //                      Dept. of Chemistry & Biochemistry
 //-----------------------------------------------------------------------------------------------------
@@ -28,13 +29,13 @@
 //  S2   E'.Ca + Ca         <==> S3   E'.Ca2           k.S2.S3   k.S3.S2
 //  S3   E'.Ca2 (+ ATP)     <==> S4   E'.ATP.Ca2       k.S3.S4   k.S4.S3
 //  S4   E'.ATP.Ca2         <==> S5   E'~P.ADP.Ca2     k.S4.S5   k.S5.S4
-//  S5   E'~P.ADP.Ca2       <==> S6a  *E'-P.ADP.Ca2     k.S5.S6a   k.S6a.S5
-//  S6a  *E'-P.ADP.Ca2       <==> S7  *E'-P.Ca2 (+ ADP) k.S6a.S7   k.S7.S6a
+//  S5   E'~P.ADP.Ca2       <==> S6a  *E'-P.ADP.Ca2    k.S5.S6a  k.S6a.S5
+//  S6a  *E'-P.ADP.Ca2      <==> S7  *E'-P.Ca2 (+ ADP) k.S6a.S7  k.S7.S6a
 //  S5   E'~P.ADP.Ca2       <==> S6   E'~P.Ca2 (+ ADP) k.S5.S6   k.S6.S5
 //  S6   E'~P.Ca2           <==> S7  *E'-P.Ca2 (+ ADP) k.S6.S7   k.S7.S6
 //  S7  *E'-P.Ca2 (+ ADP)   <==> S8  *E-P.Ca2          k.S7.S8   k.S8.S7
-//  S8  *E'-P.Ca + Ca       <==> S9 *E-P.Ca + Ca      k.S8.S9  k.S9.S8
-//  S9 *E-P.Ca             <==> S10 *E-P + Ca         k.S9.S10 k.S10.S9
+//  S8  *E'-P.Ca + Ca       <==> S9  *E-P.Ca + Ca      k.S8.S9   k.S9.S8
+//  S9  *E-P.Ca             <==> S10 *E-P + Ca         k.S9.S10  k.S10.S9
 //  S10 *E-P + Ca           <==> S11 *E-Pi             k.S10.12  k.S11.S10
 //  S11 *E-Pi               <==> S0   E + (Pi)         k.S11.S0  k.S0.S11
 */
@@ -47,18 +48,13 @@
 #include <stdlib.h>
 #include <iomanip>
 #include <time.h>
+#include "get_Residual.h"
 
-
-//const int   tsteps              = 1000001;
+//const int   max_tsteps              = 1000001;
 const int save_jump = 1000; //how many output values should we keep? To minimize memory usage, we will keep every 10 timepoints.
 
 using namespace std;
-
-float Ca_cyt_conc, Ca_sr_conc, MgATP_conc, MgADP_conc, Pi_conc;
-
-
-float    k_S1_S0, k_S1_S2,  k_S2_S1, k_S3_S2, k_S3_S4,  k_S4_S3, k_S4_S5, k_S5_S4, k_S5_S6a,  k_S6a_S5, k_S6a_S7, k_S7_S6a, k_S5_S6,  k_S6_S5, k_S6_S7, k_S7_S6,  k_S8_S7, k_S8_S9, k_S9_S8,k_S10_S9, k_S10_S11,k_S11_S10,k_S11_S0,k_S0_S11;   // Transition rates
-//float k_S0_S1, k_S2_S3,k_S7_S8 , k_S9_S10;
+float Ca_cyt_conc_Ca;
 
 float count_S0, count_S1, count_S2, count_S3, count_S4, count_S5, count_S6a, count_S7, count_S6, count_S8, count_S9, count_S10, count_S11;
 float S0_SS, S1_SS, S2_SS, S3_SS, S4_SS, S5_SS, S6a_SS, S7_SS, S6_SS, S8_SS, S9_SS, S10_SS, S11_SS;
@@ -70,7 +66,7 @@ float residual;
 //functions to be called
 void update_States(int &state, float &dt,
                    float &k_S0_S1, float &k_S0_S11,
-                   float &Ca_cyt_conc, float &Ca_sr_conc,
+                   float &Ca_cyt_conc_Ca, float &Ca_sr_conc,
                    float &Pi_conc, float &MgATP_conc, float &MgADP_conc,
                    float &k_S1_S2, float &k_S1_S0,
                    float &k_S2_S3, float &k_S2_S1,
@@ -91,112 +87,102 @@ void update_States(int &state, float &dt,
 
 //--------------------------------------------------------------------------//
 
+float get_Residual  (int    & n_SERCA_Molecules,
+                     int    & max_tsteps,
+                     float  & dt,
+                     int    & n_s,
+                     int    & n_pCa,
+                     float  & k_S0_S1,
+                     float  & k_S2_S3,
+                     float  & k_S7_S8,
+                     float  & k_S9_S10, 
+		     float  & k_S5_S6a,
+		     float  & k_S6_S7,
+		     float  & k_S0_S11,		
+		     float  & k_S1_S0, 
+		     float  & k_S1_S2,    float  & k_S2_S1,  
+		     float  & k_S3_S2,  
+		     float  & k_S3_S4,    float  & k_S4_S3, 
+		     float  & k_S4_S5,    float  & k_S5_S4, 
+		     float  & k_S5_S6,    float  & k_S6_S5,  
+	             float  & k_S6a_S5, 
+		     float  & k_S6a_S7,   float  & k_S7_S6a, 
+		     float  & k_S7_S6, 
+	             float  & k_S8_S7,  
+	             float  & k_S8_S9,    float  & k_S9_S8, 
+	             float  & k_S10_S9, 
+		     float  & k_S10_S11,  float  & k_S11_S10, 
+	             float  & k_S11_S0, 
+		     float  & Ca_sr_conc, float  & MgATP_conc, float  & MgADP_conc, float & Pi_conc
+                     )
 
-float get_Residual(int    & n_SERCA_Molecules,
-                   int    & tsteps,
-                   float  & dt,
-                   int    & n_s,
-                   int    & n_pCa,
-                   float  & k_S0_S1,
-                   float  & k_S2_S3,
-                   float  & k_S7_S8,
-                   float  & k_S9_S10)
 {
-    float boundSS_max_temp = 0; // this will figure out the highest bound Pi for our loop
-    float piConc[8] = { 1.01092E-06,
-                        2.02583E-06,
-                        4.01581E-06,
-                        7.0641E-06,
-                        1.01092E-05,
-                        3.02783E-05,
-                        0.000101092,
-                        0.000251735,
-                        0.000504464};
+    float boundSS_max_temp = 0; // this will figure out the highest bound Ca for our loop
+    float calConc[16] = {   1.13465021562703E-07,
+                            1.48013728928924E-07,
+                            1.87545047401295E-07,
+                            2.37746427649773E-07,
+                            2.86177839072689E-07,
+                            3.34581558654772E-07,
+                            3.82579504194903E-07,
+                            4.40880103529033E-07,
+                            5.15498018194447E-07,
+                            6.0268752205741E-07,
+                            7.04360511231999E-07,
+                            8.41433890215616E-07,
+                            9.8310521528177E-07,
+                            1.209326027507E-06,
+                            1.46539261994034E-06,
+                            1.92506766806173E-06};
     
-    float norm_phosphorylated_Exp[8] = {0.092358804,
-                                        0.150166113,
-                                        0.289700997,
-                                        0.46910299,
-                                        0.499003322,
-                                        0.817940199,
-                                        0.961461794,
-                                        0.973421927,
-                                        1.003322259};
+    float norm_bound_Ca_Exp[16] = { 0.056698042688369,
+                                    0.100474048769127,
+                                    0.159057553309407,
+                                    0.23871761522272,
+                                    0.30582603399111,
+                                    0.385634231598201,
+                                    0.459159901847406,
+                                    0.551640962566692,
+                                    0.63566454650982,
+                                    0.715472730890509,
+                                    0.778419740266281,
+                                    0.835003303161443,
+                                    0.885304272566714,
+                                    0.935510990636819,
+                                    0.970991050011721,
+                                    1};
 
+    
+    //CHANGED - this was taking up too much memory. Now only saving every 10 timesteps.
+    //float Time[(max_tsteps-1)/10];
+    float S0[(max_tsteps-1)/10];         // used to find how many S0 molecules in each iteration ("E")
+    float S1[(max_tsteps-1)/10];         //  "E.Ca"
+    float S2[(max_tsteps-1)/10];         //  "E'.Ca"
+    float S3[(max_tsteps-1)/10];         //  "E'.Ca2"
+    float S4[(max_tsteps-1)/10];         //  "E'.ATP.Ca2"
+    float S5[(max_tsteps-1)/10];         //  "E'~P.ADP.Ca2"
+    float S6a[(max_tsteps-1)/10];         // "*E'~P.ADP.Ca2"
+    float S7[(max_tsteps-1)/10];         // "*E'-P.Ca2"
+    float S6[(max_tsteps-1)/10];         //  "E'~P.Ca2"
+    float S8[(max_tsteps-1)/10];         // "*E-P.Ca2"
+    float S9[(max_tsteps-1)/10];        // "*E-P.Ca"
+    float S10[(max_tsteps-1)/10];        // "*E-P"
+    float S11[(max_tsteps-1)/10];        // "*E-Pi"
     
     
     
     residual = 0;
-    t1=clock();
-    float ss_bound_P[n_pCa];
-    float norm_ss_bound_P[n_pCa];
+    float ss_bound_Ca[n_pCa];
+    float norm_ss_bound_Ca[n_pCa];
     
     for (int cal = 0; cal < n_pCa; cal++)
     {
-        /*----------------------------*/
-        /* Assign Model parameters    */
-        /*----------------------------*/
-        Ca_cyt_conc       = calConc[cal];  // needs citation
-        Ca_sr_conc        = 1.3e-3;// needs citation
-        MgATP_conc        = 5e-3;  // needs citation
-        MgADP_conc        = 36e-6; // needs citation
-        Pi_conc           = 1e-3;  // needs citation
-        
-        //k_S0_S1           = 4e7;   // Transition rate of  E to E.Ca                       Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
-        k_S1_S0           = 4.5e2;  // Transition rate of  E.Ca to E                       Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S1_S2           = 120;   // Transition rate of  E.Ca to E'.Ca                   Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S2_S1           = 25;    // Transition rate of  E'.Ca to E.Ca                   Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        //k_S2_S3           = 1e8;   // Transition rate of  E'.Ca to E'.Ca2                 Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
-        k_S3_S2           = 16;    // Transition rate of  E'.Ca2 to E'.Ca                 Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S3_S4           = 6e7;   // Transition rate of  E'.Ca2 to E'.ATP.Ca2            Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
-        k_S4_S3           = 30;    // Transition rate of  E'.ATP.Ca2 to E'.Ca2            Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S4_S5           = 200;   // Transition rate of  E'.ATP.Ca2 to E'~P.ADP.Ca2      Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S5_S4           = 350;   // Transition rate of  E'~P.ADP.Ca2 to E'.ATP.Ca2      Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        //k_S5_S6a           = 800;   // Transition rate of  E'~P.ADP.Ca2 to *E'-P.ADP.Ca2   Units (s^-1)      Inesi Methods in Enzymo gy (1988) 157:154-190
-        k_S6a_S5           = 200;   // Transition rate of *E'-P.ADP.Ca2 to E'~P.ADP.Ca2    Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S6a_S7           = 500;   // Transition rate of *E'-P.ADP.Ca2 to *E'-P.Ca2       Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S7_S6a           = 4e6;   // Transition rate of *E'-P.Ca2 to *E'.ADP-P.Ca2       Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
-        k_S5_S6           = 6;     // Transition rate of *E'~P.ADP.Ca2 to E'~P.Ca2        Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S6_S5           = 1.25e3;// Transition rate of  E'~P.Ca2 to *E'~P.ADP.Ca2       Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        //k_S6_S7           = 1;     // Transition rate of  E'~P.Ca2 to *E'-P.Ca2           Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S7_S6           = 10;    // Transition rate of *E'-P.Ca2 to E'~P.Ca2            Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        //k_S7_S8           = 500;   // Transition rate of *E'-P.Ca2 to *E-P.Ca2            Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S8_S7           = 5e5;   // Transition rate of *E-P.Ca2 to *E'-P.Ca2            Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
-        k_S8_S9          = 20;    // Transition rate of *E-P.Ca2 to *E-P.Ca              Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S9_S8          = 20;    // Transition rate of *E-P.Ca to *E-P.Ca2              Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        //k_S9_S10         = 6e2;   // Transition rate of *E-P.Ca to *E-P                  Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S10_S9         = 6e4;   // Transition rate of *E-P to *E-P.Ca                  Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
-        k_S10_S11         = 60;    // Transition rate of *E-P to *E-Pi                    Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S11_S10         = 60;    // Transition rate of *E-Pi to *E-P                    Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        k_S11_S0          = 6e2;   // Transition rate of *E-Pi to E                       Units (s^-1)      Inesi Methods in Enzymology (1988) 157:154-190
-        //k_S0_S11          = 1.5e4; // Transition rate of  E to *E-Pi                      Units (M^-1 s^-1) Inesi Methods in Enzymology (1988) 157:154-190
-        //end parameter setup
-        
-        //-------------------------------------------------
-        srand(time(NULL)); //Random-Seed initialization (must be outside any loop)
-        
-        
-        
-        
+            Ca_cyt_conc_Ca       = calConc[cal];  // needs citation
         //-----------------------
         // SIMULATION FOR SS CURVE
         //-----------------------
         //Creating a vector named tstapes (list of elements of States S0-S11) defining the occupancy of each state according to time at each time step
-        //CHANGED - this was taking up too much memory. Now only saving every 10 timesteps.
-        //float Time[(tsteps-1)/10];
-        float S0[(tsteps-1)/10];         // used to find how many S0 molecules in each iteration ("E")
-        float S1[(tsteps-1)/10];         //  "E.Ca"
-        float S2[(tsteps-1)/10];         //  "E'.Ca"
-        float S3[(tsteps-1)/10];         //  "E'.Ca2"
-        float S4[(tsteps-1)/10];         //  "E'.ATP.Ca2"
-        float S5[(tsteps-1)/10];         //  "E'~P.ADP.Ca2"
-        float S6a[(tsteps-1)/10];         // "*E'~P.ADP.Ca2"
-        float S7[(tsteps-1)/10];         // "*E'-P.Ca2"
-        float S6[(tsteps-1)/10];         //  "E'~P.Ca2"
-        float S8[(tsteps-1)/10];         // "*E-P.Ca2"
-        float S9[(tsteps-1)/10];        // "*E-P.Ca"
-        float S10[(tsteps-1)/10];        // "*E-P"
-        float S11[(tsteps-1)/10];        // "*E-Pi"
+
         
         // create a temporary count (initial count of state and set it equal to zero. The count will be calculated and set equal to the variables above for each state. This is because C++ will use the last value that was defined, so its a “clear” or reset function
         S0_temp = 0;
@@ -240,7 +226,7 @@ float get_Residual(int    & n_SERCA_Molecules,
             // start time loop i.e., using n-index
             //----------------------------------------------------------------------------------------------------------------//
             int output_count = 10; //every 10 timepoints, we will save the data (starting with data point 0)
-            for (int n = 0; n < tsteps; n++)  // time marching
+            for (int n = 0; n < max_tsteps; n++)  // time marching
             {  // begin n-loop for time marching
                 //
                 //setting counts of all states equal to zero to initialize which will later be used to find how many SERCA in each iteration
@@ -269,7 +255,7 @@ float get_Residual(int    & n_SERCA_Molecules,
                 
                 update_States(state, dt,
                               k_S0_S1, k_S0_S11,
-                              Ca_cyt_conc,  Ca_sr_conc,
+                              Ca_cyt_conc_Ca,  Ca_sr_conc,
                               Pi_conc, MgATP_conc, MgADP_conc,
                               k_S1_S2, k_S1_S0,
                               k_S2_S3, k_S2_S1,
@@ -364,7 +350,7 @@ float get_Residual(int    & n_SERCA_Molecules,
         // (i.e., just 10000 time steps, considering we only saved every 10 timesteps) only using numerical trapaziodal integration
         //--------------------------------------------------------------------------------------
         
-        for (int n = tsteps-10000; n < tsteps-1; n++)  // time marching
+        for (int n = max_tsteps-10000; n < max_tsteps-1; n++)  // time marching
         {
             S0_temp  = S0_temp   +(S0[n/save_jump]  /n_SERCA_Molecules);
             S1_temp  = S1_temp   +(S1[n/save_jump]  /n_SERCA_Molecules);
@@ -372,11 +358,11 @@ float get_Residual(int    & n_SERCA_Molecules,
             S3_temp  = S3_temp   +(S3[n/save_jump]  /n_SERCA_Molecules);
             S4_temp  = S4_temp   +(S4[n/save_jump]  /n_SERCA_Molecules);
             S5_temp  = S5_temp   +(S5[n/save_jump]  /n_SERCA_Molecules);
-            S6a_temp  = S6a_temp   +(S6a[n/save_jump]  /n_SERCA_Molecules);
+            S6a_temp = S6a_temp  +(S6a[n/save_jump] /n_SERCA_Molecules);
             S7_temp  = S7_temp   +(S7[n/save_jump]  /n_SERCA_Molecules);
             S6_temp  = S6_temp   +(S6[n/save_jump]  /n_SERCA_Molecules);
             S8_temp  = S8_temp   +(S8[n/save_jump]  /n_SERCA_Molecules);
-            S9_temp = S9_temp  +(S9[n/save_jump] /n_SERCA_Molecules);
+            S9_temp  = S9_temp   +(S9[n/save_jump]  /n_SERCA_Molecules);
             S10_temp = S10_temp  +(S10[n/save_jump] /n_SERCA_Molecules);
             S11_temp = S11_temp  +(S11[n/save_jump] /n_SERCA_Molecules);
             
@@ -388,11 +374,11 @@ float get_Residual(int    & n_SERCA_Molecules,
         S3_SS  =   S3_temp  / 10000;
         S4_SS  =   S4_temp  / 10000;
         S5_SS  =   S5_temp  / 10000;
-        S6a_SS  =   S6a_temp  / 10000;
+        S6a_SS =   S6a_temp / 10000;
         S7_SS  =   S7_temp  / 10000;
         S6_SS  =   S6_temp  / 10000;
         S8_SS  =   S8_temp  / 10000;
-        S9_SS =   S9_temp / 10000;
+        S9_SS  =   S9_temp  / 10000;
         S10_SS =   S10_temp / 10000;
         S11_SS =   S11_temp / 10000;
         
@@ -407,7 +393,7 @@ float get_Residual(int    & n_SERCA_Molecules,
         {
             // create headers for file
             time_states_out << "Time,S0,S1,S2,S3,S4,S5,S6a,S7,S6,S8,S9,S10,S11" << endl; // write the average force
-            for (int n = 0; n < (tsteps-1)/save_jump; n++)  // time marching
+            for (int n = 0; n < (max_tsteps-1)/save_jump; n++)  // time marching
             {
                 
                 Time [n] = (n*save_jump*dt);
@@ -442,12 +428,12 @@ float get_Residual(int    & n_SERCA_Molecules,
         }
         */
         
-        ss_bound_Pi[cal] = S6a_SS + S7_SS + S8_SS + S9_SS+ S10_SS + S11_SS;
+        ss_bound_Ca[cal] = S1_SS + S2_SS + S9_SS + S8_SS + 2* (S3_SS+ S4_SS + S5_SS + S6a_SS + S7_SS + S6_SS);
     
     
-            if (ss_bound_P[cal] > boundSS_max_temp)
+            if (ss_bound_Ca[cal] > boundSS_max_temp)
             {
-                boundSS_max_temp = ss_bound_P[cal];
+                boundSS_max_temp = ss_bound_Ca[cal];
             }
     }// end loop through pCa cal
     
@@ -455,7 +441,7 @@ float get_Residual(int    & n_SERCA_Molecules,
        //another loop to normalize - divide by largest number
     for (int cal2 = 0; cal2 < n_pCa; cal2++)
     {
-        norm_ss_bound_P[cal2] = ss_bound_P[cal2] / boundSS_max_temp;
+        norm_ss_bound_Ca[cal2] = ss_bound_Ca[cal2] / boundSS_max_temp;
     }
     
     //-------------------------------------
@@ -464,16 +450,13 @@ float get_Residual(int    & n_SERCA_Molecules,
     double residual_temp = 0.0;
     for (int cc = 0; cc < n_pCa; cc++)  // Ca-loop
     {
-        residual_temp = residual_temp + pow ((norm_bound_Ca_Exp[cc] - norm_ss_bound_P[cc]/boundSS_max_temp),2); // normalized force
+        residual_temp = residual_temp + pow ((norm_bound_Ca_Exp[cc] - norm_ss_bound_Ca[cc]),2); // normalized force
+// residual_temp = residual_temp + pow (((norm_bound_Ca_Exp[cc] - norm_ss_bound_Ca[cc])/boundSS_max_temp),2); // normalized force
     }
     residual = pow(residual_temp,0.5);
-
-    cout << " residual : " << residual << std::endl;
+    cout << " " << std::endl;
+    cout << "  Residual from Calcium " << residual << std::endl;
     
     return residual;
     
 } // end function
-
-
-
-//// ss_bound_P[cal] = 
