@@ -60,24 +60,41 @@ int state_last;
 bool open_closed_last; //O is open 1 is closed
 float Ca_cyt_conc_last;
 
-
 //--------------------------------------------------------------------------//
 
 
-void lastRun  	    (int    & n_SERCA_Molecules,
-                     int    & tsteps,
+void lastRun        (int    & n_SERCA_Molecules,
+                     int    & tsteps, // should this be max_tsteps?
                      float  & dt,
                      int    & n_s,
                      int    & n_pCa,
-                     float  & k_S0_S1,
+                     float  & k_S0_S1, //should this be k_S0_S1_gbest ?
                      float  & k_S2_S3,
                      float  & k_S7_S8,
-                     float  & k_S9_S10,float  & k_S1_S0, float  & k_S1_S2,  float  & k_S2_S1, float  & k_S3_S2, float  & k_S3_S4,  float  & k_S4_S3, float  & k_S4_S5, float  & k_S5_S4, float  & k_S5_S6a,  float  & k_S6a_S5, float  & k_S6a_S7, float  & k_S7_S6a, float  & k_S5_S6,  float  & k_S6_S5, float  & k_S6_S7, float  & k_S7_S6,  float  & k_S8_S7, float  & k_S8_S9, float  & k_S9_S8,float  & k_S10_S9, float  & k_S10_S11,float  & k_S11_S10,float  & k_S11_S0,float  & k_S0_S11, float  & Ca_sr_conc,float  & MgATP_conc,float  & MgADP_conc,float  & Pi_conc
+                     float  & k_S9_S10, 
+		     float  & k_S5_S6a,
+		     float  & k_S6_S7,
+		     float  & k_S0_S11,		
+		     float  & k_S1_S0, 
+		     float  & k_S1_S2,    float  & k_S2_S1,  
+		     float  & k_S3_S2,  
+		     float  & k_S3_S4,    float  & k_S4_S3, 
+		     float  & k_S4_S5,    float  & k_S5_S4, 
+		     float  & k_S5_S6,    float  & k_S6_S5,  
+	             float  & k_S6a_S5, 
+		     float  & k_S6a_S7,   float  & k_S7_S6a, 
+		     float  & k_S7_S6, 
+	             float  & k_S8_S7,  
+	             float  & k_S8_S9,    float  & k_S9_S8, 
+	             float  & k_S10_S9, 
+		     float  & k_S10_S11,  float  & k_S11_S10, 
+	             float  & k_S11_S0, 
+		     float  & Ca_sr_conc, float  & MgATP_conc, float  & MgADP_conc, float & Pi_conc
                      )
 
 {
    
-   int save_jump = 100; //how many output values should we keep? To minimize memory usage, we will keep every 10 timepoints.
+   int save_jump = 10; //how many output values should we keep? To minimize memory usage, we will keep every 10 timepoints.
     
     float calConc_Exp[16] = {   1.13465021562703E-07,
         1.48013728928924E-07,
@@ -124,31 +141,31 @@ void lastRun  	    (int    & n_SERCA_Molecules,
     float S11[(tsteps-1)/10];        // "*E-Pi"
 
     // create a temp_lastorary last_count (initial last_count of state and set it equal to zero. The last_count will be calculated and set equal to the variables above for each state. This is because C++ will use the last value that was defined, so its a “clear” or reset function
-    S0_temp_last = 0;
-    S1_temp_last = 0;
-    S2_temp_last = 0;
-    S3_temp_last = 0;
-    S4_temp_last = 0;
-    S5_temp_last = 0;
+    S0_temp_last  = 0;
+    S1_temp_last  = 0;
+    S2_temp_last  = 0;
+    S3_temp_last  = 0;
+    S4_temp_last  = 0;
+    S5_temp_last  = 0;
     S6a_temp_last = 0;
-    S7_temp_last = 0;
-    S6_temp_last = 0;
-    S8_temp_last = 0;
-    S9_temp_last = 0;
+    S7_temp_last  = 0;
+    S6_temp_last  = 0;
+    S8_temp_last  = 0;
+    S9_temp_last  = 0;
     S10_temp_last = 0;
     S11_temp_last = 0;
     
-    S0_SS_last = 0;
-    S1_SS_last = 0;
-    S2_SS_last = 0;
-    S3_SS_last = 0;
-    S4_SS_last = 0;
-    S5_SS_last = 0;
+    S0_SS_last  = 0;
+    S1_SS_last  = 0;
+    S2_SS_last  = 0;
+    S3_SS_last  = 0;
+    S4_SS_last  = 0;
+    S5_SS_last  = 0;
     S6a_SS_last = 0;
-    S7_SS_last = 0;
-    S6_SS_last = 0;
-    S8_SS_last = 0;
-    S9_SS_last = 0;
+    S7_SS_last  = 0;
+    S6_SS_last  = 0;
+    S8_SS_last  = 0;
+    S9_SS_last  = 0;
     S10_SS_last = 0;
     S11_SS_last = 0;
 
@@ -170,17 +187,17 @@ void lastRun  	    (int    & n_SERCA_Molecules,
             //
             //setting last_counts of all states equal to zero to initialize which will later be used to find how many SERCA in each iteration
             //
-            last_count_S0  = 0.0;   // "E"
+            last_count_S0  = 0.0;  //  "E"
             last_count_S1  = 0.0;  //  "E.Ca"
             last_count_S2  = 0.0;  //  "E'.Ca"
             last_count_S3  = 0.0;  //  "E'.Ca2"
             last_count_S4  = 0.0;  //  "E'.ATP.Ca2"
             last_count_S5  = 0.0;  //  "E'~P.ADP.Ca2"
-            last_count_S6a  = 0.0;  // "*E'~P.ADP.Ca2"
+            last_count_S6a = 0.0;  // "*E'~P.ADP.Ca2"
             last_count_S7  = 0.0;  // "*E'-P.Ca2"
             last_count_S6  = 0.0;  //  "E'~P.Ca2"
             last_count_S8  = 0.0;  // "*E-P.Ca2"
-            last_count_S9 = 0.0;  // "*E-P.Ca"
+            last_count_S9  = 0.0;  // "*E-P.Ca"
             last_count_S10 = 0.0;  // "*E-P"
             last_count_S11 = 0.0;  // "*E-Pi"
             

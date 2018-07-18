@@ -54,7 +54,7 @@
 const int save_jump = 1000; //how many output values should we keep? To minimize memory usage, we will keep every 10 timepoints.
 
 using namespace std;
-float Ca_cyt_conc;
+float Ca_cyt_conc_Ca;
 
 float count_S0, count_S1, count_S2, count_S3, count_S4, count_S5, count_S6a, count_S7, count_S6, count_S8, count_S9, count_S10, count_S11;
 float S0_SS, S1_SS, S2_SS, S3_SS, S4_SS, S5_SS, S6a_SS, S7_SS, S6_SS, S8_SS, S9_SS, S10_SS, S11_SS;
@@ -66,7 +66,7 @@ float residual;
 //functions to be called
 void update_States(int &state, float &dt,
                    float &k_S0_S1, float &k_S0_S11,
-                   float &Ca_cyt_conc, float &Ca_sr_conc,
+                   float &Ca_cyt_conc_Ca, float &Ca_sr_conc,
                    float &Pi_conc, float &MgATP_conc, float &MgADP_conc,
                    float &k_S1_S2, float &k_S1_S0,
                    float &k_S2_S3, float &k_S2_S1,
@@ -87,16 +87,34 @@ void update_States(int &state, float &dt,
 
 //--------------------------------------------------------------------------//
 
-float get_Residual(int    & n_SERCA_Molecules,
-                   int    & max_tsteps,
-                   float  & dt,
-                   int    & n_s,
-                   int    & n_pCa,
-                   float  & k_S0_S1,
-                   float  & k_S2_S3,
-                   float  & k_S7_S8,
-                   float  & k_S9_S10,float  & k_S1_S0, float  & k_S1_S2,  float  & k_S2_S1, float  & k_S3_S2, float  & k_S3_S4,  float  & k_S4_S3, float  & k_S4_S5, float  & k_S5_S4, float  & k_S5_S6a,  float  & k_S6a_S5, float  & k_S6a_S7, float  & k_S7_S6a, float  & k_S5_S6,  float  & k_S6_S5, float  & k_S6_S7, float  & k_S7_S6,  float  & k_S8_S7, float  & k_S8_S9, float  & k_S9_S8,float  & k_S10_S9, float  & k_S10_S11,float  & k_S11_S10,float  & k_S11_S0,float  & k_S0_S11, float  & Ca_sr_conc,float  & MgATP_conc,float  & MgADP_conc,float  & Pi_conc
-                   )
+float get_Residual  (int    & n_SERCA_Molecules,
+                     int    & max_tsteps,
+                     float  & dt,
+                     int    & n_s,
+                     int    & n_pCa,
+                     float  & k_S0_S1,
+                     float  & k_S2_S3,
+                     float  & k_S7_S8,
+                     float  & k_S9_S10, 
+		     float  & k_S5_S6a,
+		     float  & k_S6_S7,
+		     float  & k_S0_S11,		
+		     float  & k_S1_S0, 
+		     float  & k_S1_S2,    float  & k_S2_S1,  
+		     float  & k_S3_S2,  
+		     float  & k_S3_S4,    float  & k_S4_S3, 
+		     float  & k_S4_S5,    float  & k_S5_S4, 
+		     float  & k_S5_S6,    float  & k_S6_S5,  
+	             float  & k_S6a_S5, 
+		     float  & k_S6a_S7,   float  & k_S7_S6a, 
+		     float  & k_S7_S6, 
+	             float  & k_S8_S7,  
+	             float  & k_S8_S9,    float  & k_S9_S8, 
+	             float  & k_S10_S9, 
+		     float  & k_S10_S11,  float  & k_S11_S10, 
+	             float  & k_S11_S0, 
+		     float  & Ca_sr_conc, float  & MgATP_conc, float  & MgADP_conc, float & Pi_conc
+                     )
 
 {
     float boundSS_max_temp = 0; // this will figure out the highest bound Ca for our loop
@@ -159,7 +177,7 @@ float get_Residual(int    & n_SERCA_Molecules,
     
     for (int cal = 0; cal < n_pCa; cal++)
     {
-            Ca_cyt_conc       = calConc[cal];  // needs citation
+            Ca_cyt_conc_Ca       = calConc[cal];  // needs citation
         //-----------------------
         // SIMULATION FOR SS CURVE
         //-----------------------
@@ -237,7 +255,7 @@ float get_Residual(int    & n_SERCA_Molecules,
                 
                 update_States(state, dt,
                               k_S0_S1, k_S0_S11,
-                              Ca_cyt_conc,  Ca_sr_conc,
+                              Ca_cyt_conc_Ca,  Ca_sr_conc,
                               Pi_conc, MgATP_conc, MgADP_conc,
                               k_S1_S2, k_S1_S0,
                               k_S2_S3, k_S2_S1,
@@ -340,11 +358,11 @@ float get_Residual(int    & n_SERCA_Molecules,
             S3_temp  = S3_temp   +(S3[n/save_jump]  /n_SERCA_Molecules);
             S4_temp  = S4_temp   +(S4[n/save_jump]  /n_SERCA_Molecules);
             S5_temp  = S5_temp   +(S5[n/save_jump]  /n_SERCA_Molecules);
-            S6a_temp  = S6a_temp   +(S6a[n/save_jump]  /n_SERCA_Molecules);
+            S6a_temp = S6a_temp  +(S6a[n/save_jump] /n_SERCA_Molecules);
             S7_temp  = S7_temp   +(S7[n/save_jump]  /n_SERCA_Molecules);
             S6_temp  = S6_temp   +(S6[n/save_jump]  /n_SERCA_Molecules);
             S8_temp  = S8_temp   +(S8[n/save_jump]  /n_SERCA_Molecules);
-            S9_temp = S9_temp  +(S9[n/save_jump] /n_SERCA_Molecules);
+            S9_temp  = S9_temp   +(S9[n/save_jump]  /n_SERCA_Molecules);
             S10_temp = S10_temp  +(S10[n/save_jump] /n_SERCA_Molecules);
             S11_temp = S11_temp  +(S11[n/save_jump] /n_SERCA_Molecules);
             
@@ -356,11 +374,11 @@ float get_Residual(int    & n_SERCA_Molecules,
         S3_SS  =   S3_temp  / 10000;
         S4_SS  =   S4_temp  / 10000;
         S5_SS  =   S5_temp  / 10000;
-        S6a_SS  =   S6a_temp  / 10000;
+        S6a_SS =   S6a_temp / 10000;
         S7_SS  =   S7_temp  / 10000;
         S6_SS  =   S6_temp  / 10000;
         S8_SS  =   S8_temp  / 10000;
-        S9_SS =   S9_temp / 10000;
+        S9_SS  =   S9_temp  / 10000;
         S10_SS =   S10_temp / 10000;
         S11_SS =   S11_temp / 10000;
         
@@ -437,7 +455,7 @@ float get_Residual(int    & n_SERCA_Molecules,
     }
     residual = pow(residual_temp,0.5);
     cout << " " << std::endl;
-    cout << "       Residual being passed on : " << residual << std::endl;
+    cout << "  Residual from Calcium " << residual << std::endl;
     
     return residual;
     
