@@ -145,7 +145,7 @@ float get_Residual_Pi  (int    & n_SERCA_Molecules,
 					0.95970588,
 					0.98029412,
 					0.99264706,
-					0.99264706};
+					1};
 
     
     //CHANGED - this was taking up too much memory. Now only saving every 10 timesteps.
