@@ -28,13 +28,13 @@
 //  S2   E'.Ca + Ca         <==> S3   E'.Ca2           k_S2_S3   k_S3_S2
 //  S3   E'.Ca2 (+ ATP)     <==> S4   E'.ATP.Ca2       k_S3_S4   k_S4_S3
 //  S4   E'.ATP.Ca2         <==> S5   E'~P.ADP.Ca2     k_S4_S5   k_S5_S4
-//  S5   E'~P.ADP.Ca2       <==> S6a  *E'-P.ADP.Ca2     k_S5_S6a   k_S6a_S5
-//  S6a  *E'-P.ADP.Ca2       <==> S7  *E'-P.Ca2 (+ ADP) k_S6a_S7   k_S7_S6a
+//  S5   E'~P.ADP.Ca2       <==> S6a *E'-P.ADP.Ca2     k_S5_S6a  k_S6a_S5
+//  S6a *E'-P.ADP.Ca2       <==> S7  *E'-P.Ca2 (+ ADP) k_S6a_S7  k_S7_S6a
 //  S5   E'~P.ADP.Ca2       <==> S6   E'~P.Ca2 (+ ADP) k_S5_S6   k_S6_S5
 //  S6   E'~P.Ca2           <==> S7  *E'-P.Ca2         k_S6_S7   k_S7_S6
 //  S7  *E'-P.Ca2           <==> S8  *E-P.Ca   + Ca    k_S7_S8   k_S8_S7
-//  S8  *E'-P.Ca            <==> S9 *E-P.Ca           k_S8_S9  k_S9_S8
-//  S9 *E-P.Ca             <==> S10 *E-P      + Ca    k_S9_S10 k_S10_S9
+//  S8  *E'-P.Ca            <==> S9  *E-P.Ca           k_S8_S9   k_S9_S8
+//  S9  *E-P.Ca             <==> S10 *E-P      + Ca    k_S9_S10  k_S10_S9
 //  S10 *E-P                <==> S11 *E-Pi             k_S10_S11 k_S11_S10
 //  S11 *E-Pi               <==> S0   E + (Pi)         k_S11_S0  k_S0_S11
 */
@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
     //
     //
     //------------------ --------------------------------------------------------------
-    const int max_iter = 100;
+    const int max_iter = 1000;
     float total_gbest[max_iter]; ; 
 if (max_iter != 0)
 {     
