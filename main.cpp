@@ -117,9 +117,9 @@ int main(int argc, char *argv[])
     n_SERCA_Molecules      = 10000;        // Max number used to repeat the simulation (n_SERCA)
     max_tsteps             = 100001;     // Max number of time stepping
     dt                     = 1e-7;       // fixed time step
-    n_s          	   = 12 ;        // Number of states
+    n_s          	   = 13 ;        // Number of states
     n_pCa       	   = 16;         // Number of  pCa or Ca values to be simulated
-    n_pCa       	   = 13;         // Number of  pPi or Phosphate values to be simulated
+    n_pPi       	   = 13;         // Number of  pPi or Phosphate values to be simulated
     // --------------------------------------------------------------------------------------------------
     // Parameters / reference values of the transition rates (will be optimized)
     // Lower and Upper bounds on each parameter. NB: upper = 1.5* lower i.e, 50 % increase of lower value
@@ -369,7 +369,7 @@ int main(int argc, char *argv[])
     //
     //
     //------------------ --------------------------------------------------------------
-    const int max_iter = 0;
+    const int max_iter = 100;
     float total_gbest[max_iter]; ; 
 if (max_iter != 0)
 {     
