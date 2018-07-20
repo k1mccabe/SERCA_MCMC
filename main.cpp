@@ -54,7 +54,7 @@
 
 using namespace std;
 
-const int n_particles_PSO = 2;
+const int n_particles_PSO = 100;
 
 int   n_s;                 // Number of states
 int   n_pCa ;              // Number of simulated pCa or Ca values
