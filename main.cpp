@@ -58,7 +58,7 @@
 
 using namespace std;
 
-const int n_particles_PSO = 10;
+const int n_particles_PSO = 100;
 
 int   n_s;              		   // Number of states
 int   n_pCa ;             		   // Number of simulated pCa or Ca values
@@ -145,8 +145,8 @@ int main(int argc, char *argv[])
 {
     
     long long startTime    = time(NULL);
-    n_SERCA_Molecules      = 10;         // Max number used to repeat the simulation (n_SERCA)
-    max_tsteps             = 1000001;     // Max number of time stepping
+    n_SERCA_Molecules      = 10000;         // Max number used to repeat the simulation (n_SERCA)
+    max_tsteps             = 100001;     // Max number of time stepping
     dt            	   = 1e-7;        // fixed time step
     n_s                    = 15 ;         // Number of states
     n_pCa                  = 16;          // Number of  pCa or Ca values to be simulated
