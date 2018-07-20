@@ -53,7 +53,7 @@
 
 using namespace std;
 
-const int n_particles_PSO = 80;
+const int n_particles_PSO = 100;
 
 int   n_s;                 // Number of states
 int   n_pCa ;              // Number of simulated pCa or Ca values
@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
     //
     //
     //------------------ --------------------------------------------------------------
-    const int max_iter = 1000;
+    const int max_iter = 100;
     float total_gbest[max_iter]; ; 
 if (max_iter != 0)
 {     
